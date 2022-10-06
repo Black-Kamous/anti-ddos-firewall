@@ -8,6 +8,25 @@
 
 std::set<std::string> tldset = {"com", "net", "org", "gov", "edu", "cn", "uk", "us", "ru"};
 
+void domain2qname(char *domain, int len){
+	if(len > 253)
+		return;
+	
+    int i=0;
+    for(;i<len;++i){
+        if(domain[i] == '.'){
+            int j;
+            for(j=i;j<len;++j){
+                if(domain[j] == '.'){
+                    break;
+                }
+            }
+            domain[i] = j-i-1+'0';
+            i=j-1;
+        }
+    }
+}
+
 int main(int argc, char **argv){
     // if(argc != 2){
     //     std::cout << "Wrong arg" << std::endl;
@@ -57,7 +76,10 @@ int main(int argc, char **argv){
     if(!tldset.count(maxiter->first)){
         const int k=3;
         if(max >= k*sec){
-            simple_print("result is "+maxiter->first);
+            char s[256];
+            maxiter->first.copy(s, maxiter->first.length());
+            domain2qname(s, maxiter->first.length());
+            simple_print(s);
         }
     }
     
