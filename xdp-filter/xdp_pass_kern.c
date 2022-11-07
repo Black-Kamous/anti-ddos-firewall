@@ -12,13 +12,13 @@
 
 #define DM_MAXLEN 256
 
-const char *suf = "\03www\05baidu\03com";
+static char *suf = "\03www\05baidu\03com";
 const int suf_end = 13;
 
-int is_suffix(const char* base){
+static __always_inline int is_suffix(const char* base, void* data_end){
 	int base_end;
 	#pragma unroll
-	for(base_end=0;base_end<DM_MAXLEN;++base_end){
+	for(base_end=0;base_end<DM_MAXLEN && base+base_end <= data_end;++base_end){
 		if(base[base_end] == 0x00){base_end--;break;}}
 
 	if(base_end < suf_end)
@@ -67,6 +67,7 @@ int xdp_patch_ports_func(struct xdp_md *ctx)
 
 	if (ip_type == IPPROTO_UDP) {
 		if (parse_udphdr(&nh, data_end, &udphdr) < 0) {
+			is_suffix((char *)nh.pos, data_end);
 			action = XDP_ABORTED;
 			goto out;
 		}
