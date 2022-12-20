@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "*.rs": "rust",
+        "rewrite_helpers.h": "c",
+        "cerrno": "c",
+        "cstdarg": "c",
+        "iostream": "c",
+        "streambuf": "c",
+        "*.tcc": "c",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "bpf_helpers.h": "c"
+    }
+}

@@ -1,7 +1,6 @@
-#include <stdio.h>
-
-char s[] = "\03www\05baidu\03com";
+#include <dlfcn.h>
 
 int main(){
-    printf("%d\n",sizeof(s));
+    dlopen("/usr/lib/libclang.so", RTLD_NOW);
+    return 0;
 }
