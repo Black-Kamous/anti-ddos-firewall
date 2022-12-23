@@ -10,14 +10,18 @@ static const char *__doc__ = "Simple XDP prog doing XDP_PASS\n";
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
 
+#include <arpa/inet.h>
+
 #include <net/if.h>
 #include <linux/if_link.h> /* depend on kernel-headers installed */
 
 #include "../common/common_params.h"
 
+#define PREF_MAXLEN 32
+
 struct ipv4_lpm_key {
         __u32 prefixlen;
-        __u8 data[16];
+        __u32 data;
 };
 
 
@@ -164,17 +168,46 @@ int main(int argc, char **argv)
 	}
 
     struct bpf_map *dmap = NULL;
-    if(!(dmap = bpf_object__find_map_by_name(obj, "dns_block_suffixes"))){
-        fprintf(stderr, "ERR: loading map: %s\n", "dns_block_suffixes");
+    if(!(dmap = bpf_object__find_map_by_name(obj, "ip_block_suffixes"))){
+        fprintf(stderr, "ERR: loading map: %s\n", "ip_block_suffixes");
 		return EXIT_FAIL_BPF;
     }
-    __u8 ckey[4] = {112, 17, 0, 0};
-    struct ipv4_lpm_key key = {.prefixlen = 16, .data = {0}};
-	*(__u32*)key.data = *(__u32*)ckey;
-    long value = 98;
-
     int dmap_fd = bpf_map__fd(dmap);
-    bpf_map_update_elem(dmap_fd, &key, &value, BPF_ANY);
+    
+	int fp;
+	char fname[256] = "../block_ips.t";
+	if((fp = fopen(fname,"r")) == NULL){
+	perror("fail to read");
+	exit (1) ;
+	}
+
+	char buf[PREF_MAXLEN] = {0};
+	__u32 len;
+	int cnt = 0;
+	struct ipv4_lpm_key ilk;
+	while(fgets(buf,PREF_MAXLEN,fp) != NULL){
+		len = strlen(buf);
+		buf[len-1] = '\0';  /*去掉换行符*/
+		
+		__u32 preflen = 32;
+		for (int i=len-2;i>=0;--i){
+			if(buf[i] == '/'){
+				preflen = atoi(buf[i+1]);
+				buf[i] = '\0';
+				break;
+			}
+		}
+
+		__u32 dst;
+		inet_pton(AF_INET, buf, &dst);
+		ilk.prefixlen = preflen;
+		ilk.data = htonl(dst);
+		
+		bpf_map_update_elem(dmap_fd, &ilk, cnt, BPF_ANY);
+
+		memset(buf, 0, PREF_MAXLEN);
+		cnt++;
+	}
 
 	/* At this point: BPF-prog is (only) loaded by the kernel, and prog_fd
 	 * is our file-descriptor handle. Next step is attaching this FD to a

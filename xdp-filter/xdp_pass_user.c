@@ -191,7 +191,7 @@ int main(int argc, char **argv)
 		
 		strrev(buf);
 		memset(qlk.rev_suf, 0, SUF_MAXLEN);
-		qlk.prefixlen = len;
+		qlk.prefixlen = len-1;
 		strncpy(qlk.rev_suf, buf, len);
 		bpf_map_update_elem(dmap_fd, &qlk, cnt, BPF_ANY);
 		memset(buf, 0, SUF_MAXLEN);
