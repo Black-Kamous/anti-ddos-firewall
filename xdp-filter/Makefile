@@ -16,5 +16,5 @@ COMMON_OBJS := $(COMMON_DIR)/common_params.o
 unload: 
 	ip link set dev eth0 xdpgeneric off
 
-unload: 
+show: 
 	ip link show dev eth0

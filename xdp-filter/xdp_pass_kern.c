@@ -19,9 +19,6 @@
 #define DM_MAXLEN 64
 #define SUF_MAXLEN 64
 
-// static char *suf = "\03www\05baidu\03com";
-// const int suf_end = 13;
-
 struct qname_lpm_key {
 	__u32 prefixlen;
 	char rev_suf[SUF_MAXLEN];
@@ -40,71 +37,44 @@ static __always_inline struct qname_lpm_key get_qname_lpm_key(const char* base, 
 		.prefixlen = SUF_MAXLEN,
 		.rev_suf = {0}
 	};
-	int qend = 0;
-	char tmp = 0;
+	__u64 qend = 0;
+	char tmp = 0, sv = 0;
+	char qnbuf[DM_MAXLEN] = {0};
+
 	while(qend<DM_MAXLEN){
-		if(base+qend+1 > data_end){
-			qlk.prefixlen = 0;
-			return qlk;
+		if((void*)base+qend+1 > data_end) goto fail;
+		if(qend == tmp){
+			sv = tmp;
+			tmp = base[qend];
+			bpf_printk("dm len:%d\n", tmp);
+			if(tmp == 0x00) break;
+			if(tmp > 63) goto fail;
+			qnbuf[qend] = '.';
+			tmp = sv+tmp+1;
+		}else{
+			qnbuf[qend] = base[qend];
 		}
-		tmp = base[qend];
-		if(tmp == 0x00) break;
-		qend += tmp+1;
+		qend++;
 	}
+	if(qend >= DM_MAXLEN) goto fail;
+
+	__u64 qlen = qend-1;
 	qend--;
-	int qlen = qend-1;
-	int ind = 0, 
-		nd = ind+base[ind]+1;
-	while(ind<=qend && ind < DM_MAXLEN){
-		ind++;
-		while(ind<nd && ind < DM_MAXLEN){
-			int i = 0;
-			if(base+ind+1 > data_end){
-				qlk.prefixlen = 0;
-				return qlk;
-			}
-			qlk.rev_suf[i] = base[ind];
-			ind++;
-		}
-		int j = 0; //qlen-ind;
-		qlk.rev_suf[j] = '.';
-		if(base+ind+1 > data_end){
-			qlk.prefixlen = 0;
-			return qlk;
-		}
-		nd = ind+base[ind]+1;
+	while(qend > 0){
+		__u64 i = qlen-qend;
+		if(i>=SUF_MAXLEN) break;
+		if(qend<0 || qend>DM_MAXLEN-1) goto fail;
+		qlk.rev_suf[i] = qnbuf[qend];
+		qend--;
 	}
+
 	bpf_printk("rev suffix:%s\n", qlk.rev_suf);
-	bpf_printk("q len:%d\n", qlen);
+	return qlk;
+
+fail:
+	qlk.prefixlen = 0;
 	return qlk;
 }
-
-// static __always_inline int is_suffix(const char* base, void* data_end){
-// 	int base_end;
-// 	#pragma unroll
-// 	for(base_end=0;base_end<DM_MAXLEN;++base_end){
-// 		if(base+base_end+1 > data_end){
-// 			return -1;
-// 		}
-// 		if(base[base_end] == 0x00){
-// 			base_end--;break;
-// 		}
-// 	}
-
-// 	if(base_end < suf_end)
-// 		return 0;
-	
-// 	int diff = base_end - suf_end;
-// 	int i=suf_end;
-// 	if(base+i+diff+1 > data_end)
-// 		return -1;
-// 	for(;i>=0;--i){
-// 		if(suf[i] != base[i+diff])
-// 			return 0;
-// 	}
-
-// 	return 1;
-// }
 
 /*
  * Solution to the assignment 1 in lesson packet02
@@ -148,7 +118,18 @@ int xdp_patch_ports_func(struct xdp_md *ctx)
 		}
 		__u16 qrn = *(((__u16*)(nh.pos))+2);
 		if(qrn > 0){
-			get_qname_lpm_key((char*)nh.pos+12, data_end);
+			struct qname_lpm_key qlk = get_qname_lpm_key((char*)nh.pos+12, data_end);
+			if(qlk.prefixlen == 0){
+				action = XDP_ABORTED;
+				goto out;
+			}
+			__u32* tval = NULL;
+			if(!(tval = bpf_map_lookup_elem(&dns_block_suffixes, &qlk))){
+				action = XDP_PASS;
+				goto out;
+			}else{
+				bpf_printk("blocked prefix: %d", *tval);
+			}
 		}
 	} else {
 		goto out;

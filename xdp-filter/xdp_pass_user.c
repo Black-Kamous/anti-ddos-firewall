@@ -6,6 +6,7 @@ static const char *__doc__ = "Simple XDP prog doing XDP_PASS\n";
 #include <string.h>
 #include <errno.h>
 #include <getopt.h>
+#include <string.h>
 
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
@@ -14,6 +15,14 @@ static const char *__doc__ = "Simple XDP prog doing XDP_PASS\n";
 #include <linux/if_link.h> /* depend on kernel-headers installed */
 
 #include "../common/common_params.h"
+
+#define DM_MAXLEN 64
+#define SUF_MAXLEN 64
+
+struct qname_lpm_key {
+	__u32 prefixlen;
+	char rev_suf[SUF_MAXLEN];
+};
 
 
 static const struct option_wrapper long_options[] = {
@@ -41,7 +50,7 @@ static const struct option_wrapper long_options[] = {
 	{{0, 0, NULL,  0 }, NULL, false}
 };
 
-int load_bpf_object_file__simple(const char *filename)
+int load_bpf_object_file__simple(const char *filename, struct bpf_object** o_obj)
 {
 	int first_prog_fd = -1;
 	struct bpf_object *obj;
@@ -54,12 +63,14 @@ int load_bpf_object_file__simple(const char *filename)
 	if (err) {
 		fprintf(stderr, "ERR: loading BPF-OBJ file(%s) (%d): %s\n",
 			filename, err, strerror(-err));
-		return -1;
+		*o_obj = NULL;
+        return -1;
 	}
 
 	/* Simply return the first program file descriptor.
 	 * (Hint: This will get more advanced later)
 	 */
+    *o_obj = obj;
 	return first_prog_fd;
 }
 
@@ -128,7 +139,7 @@ int main(int argc, char **argv)
 {
 	struct bpf_prog_info info = {};
 	__u32 info_len = sizeof(info);
-	char filename[256] = "xdp_pass_kern.o";
+	char filename[256] = "lpm_test.o";
 	int prog_fd, err;
 
 	struct config cfg = {
@@ -147,11 +158,44 @@ int main(int argc, char **argv)
 	if (cfg.do_unload)
 		return xdp_link_detach(cfg.ifindex, cfg.xdp_flags);
 
+    struct bpf_object *obj;
+
 	/* Load the BPF-ELF object file and get back first BPF_prog FD */
-	prog_fd = load_bpf_object_file__simple(filename);
+	prog_fd = load_bpf_object_file__simple(filename, &obj);
 	if (prog_fd <= 0) {
 		fprintf(stderr, "ERR: loading file: %s\n", filename);
 		return EXIT_FAIL_BPF;
+	}
+
+    struct bpf_map *dmap = NULL;
+    if(!(dmap = bpf_object__find_map_by_name(obj, "dns_block_suffixes"))){
+        fprintf(stderr, "ERR: loading map: %s\n", "dns_block_suffixes");
+		return EXIT_FAIL_BPF;
+    }
+	int dmap_fd = bpf_map__fd(dmap);
+    
+	int fp;
+	char fname[256] = "../block_domains.t";
+	if((fp = fopen(fname,"r")) == NULL){
+	perror("fail to read");
+	exit (1) ;
+	}
+
+	char buf[SUF_MAXLEN] = {0};
+	__u32 len;
+	int cnt = 0;
+	struct qname_lpm_key qlk;
+	while(fgets(buf,SUF_MAXLEN,fp) != NULL){
+		len = strlen(buf);
+		buf[len-1] = '\0';  /*去掉换行符*/
+		
+		strrev(buf);
+		memset(qlk.rev_suf, 0, SUF_MAXLEN);
+		qlk.prefixlen = len;
+		strncpy(qlk.rev_suf, buf, len);
+		bpf_map_update_elem(dmap_fd, &qlk, cnt, BPF_ANY);
+		memset(buf, 0, SUF_MAXLEN);
+		cnt++;
 	}
 
 	/* At this point: BPF-prog is (only) loaded by the kernel, and prog_fd
