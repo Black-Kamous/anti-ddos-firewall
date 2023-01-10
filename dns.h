@@ -1,6 +1,9 @@
 #ifndef DNS
 #define DNS
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <netinet/in.h>
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -45,7 +48,7 @@ int get_qr(u_char *start_pos, struct dnsqr *qr){
     qr->dclass = ntohs(*(uint16_t *)ptr);
 
     qr->qn.len = ttlen;
-    qr->qn.start = malloc(ttlen);
+    qr->qn.start = (char *)malloc(ttlen);
     ptr = start_pos;
 
     char* writer = qr->qn.start;
@@ -72,7 +75,7 @@ dnsqr_list get_qr_list(struct dnshdr *dns){
     int qrlen = 0;
     dnsqr_list qr;
     while(qrn--){
-        qr = malloc(sizeof(struct dnsqr));
+        qr = (dnsqr_list)malloc(sizeof(struct dnsqr));
         qr->next = NULL;
         qrlen = get_qr(qstart, qr);
         if(qrlen < 0){

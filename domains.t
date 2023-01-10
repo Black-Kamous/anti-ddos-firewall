@@ -1,3 +1,4 @@
-www.baidu.cm.abc.lq
-www.cm.abc.lq
-www.abc.def.cm.abc.lq
+www.abc.qname.com
+www.def.qname.com
+www.qwerty.qname.com
+www.baidu.com

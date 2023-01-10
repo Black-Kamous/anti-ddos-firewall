@@ -135,11 +135,20 @@ int xdp_link_attach(int ifindex, __u32 xdp_flags, int prog_fd)
 	return EXIT_OK;
 }
 
+int strrev(char *src, int len){
+	char * tmp = malloc(len);
+	strncpy(tmp, src, len);
+	for(int i=0;i<len;++i){
+		src[i] = tmp[len-1-i];
+	}
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	struct bpf_prog_info info = {};
 	__u32 info_len = sizeof(info);
-	char filename[256] = "lpm_test.o";
+	char filename[256] = "xdp_pass_kern.o";
 	int prog_fd, err;
 
 	struct config cfg = {
@@ -174,7 +183,7 @@ int main(int argc, char **argv)
     }
 	int dmap_fd = bpf_map__fd(dmap);
     
-	int fp;
+	FILE *fp;
 	char fname[256] = "../block_domains.t";
 	if((fp = fopen(fname,"r")) == NULL){
 	perror("fail to read");
@@ -187,13 +196,14 @@ int main(int argc, char **argv)
 	struct qname_lpm_key qlk;
 	while(fgets(buf,SUF_MAXLEN,fp) != NULL){
 		len = strlen(buf);
-		buf[len-1] = '\0';  /*去掉换行符*/
-		
-		strrev(buf);
+		buf[len] = '\0';  /*去掉换行符*/
+		printf("qname %s\n", buf);
+		strrev(buf, len);
+		printf("rev qname %s\n", buf);
 		memset(qlk.rev_suf, 0, SUF_MAXLEN);
 		qlk.prefixlen = len-1;
 		strncpy(qlk.rev_suf, buf, len);
-		bpf_map_update_elem(dmap_fd, &qlk, cnt, BPF_ANY);
+		bpf_map_update_elem(dmap_fd, &qlk, &cnt, BPF_ANY);
 		memset(buf, 0, SUF_MAXLEN);
 		cnt++;
 	}

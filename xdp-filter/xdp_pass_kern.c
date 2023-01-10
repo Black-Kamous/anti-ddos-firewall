@@ -129,6 +129,8 @@ int xdp_patch_ports_func(struct xdp_md *ctx)
 				goto out;
 			}else{
 				bpf_printk("blocked prefix: %d", *tval);
+				action = XDP_DROP;
+				goto out;
 			}
 		}
 	} else {
