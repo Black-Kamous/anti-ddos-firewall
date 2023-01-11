@@ -1,10 +1,17 @@
-#include <types.h>
+#ifndef LPM_H
+#define LPM_H
 
-template<class K, class V>
-class LPM{
-    public:
-    virtual LPM(int maxKeySize) = 0;
-    virtual V* lookup(K key) = 0;
-    virtual int update(K key, V val) = 0;
+#include <cstdint>
+#include <cstdlib>
+
+template <class K, class V>
+class LPM
+{
+public:
+    //keylen应为前缀的位数（bits）
+    virtual V *lookup(K key, int keylen) = 0;
+    virtual int update(K key, int keylen, V val) = 0;
     virtual int remove(K key) = 0;
 };
+
+#endif
