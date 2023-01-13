@@ -18,6 +18,7 @@ QnFilter::QnFilter(std::string filename){
         strncpy(qn.n, qname.c_str(), QNAME_MAX);
         lpm->update(qn, qname.size(), 1);
     }
+    this->type = "qn";
 }
 
 int QnFilter::filter(std::string ip, int ipVer, std::string queryName, time_t time){
@@ -27,7 +28,9 @@ int QnFilter::filter(std::string ip, int ipVer, std::string queryName, time_t ti
     uint32_t* vptr = lpm->lookup(qn, queryName.size());
     if(vptr == NULL){
         nPassed++;
+        return F_PASSED;
     }else{
         nDropped++;
+        return F_DROPPED;
     }
 }
