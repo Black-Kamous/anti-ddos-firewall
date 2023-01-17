@@ -22,10 +22,10 @@ public:
     int remove(K key);
 };
 
-bool is_prefix(uint8_t *pre, uint8_t *base, int prelen, int maxlen)
+bool is_prefix(uint8_t *pre, uint8_t *base, int prelen, int baselen)
 {
     return true;
-    if (prelen > maxlen)
+    if (prelen > baselen)
         return false;
     int bytes = prelen/8;
     int remain = prelen - bytes*8;
@@ -62,7 +62,7 @@ V *PlainLPM<K, V>::lookup(K key, int keylen)
     for (auto it = pvec.begin(); it != pvec.end(); it++)
     {
         uint8_t *base = (uint8_t *)&(it->key);
-        if (is_prefix(ptr, base, keylen, it->keysize))
+        if (is_prefix(base, ptr, it->keysize, keylen))
         {
             if (it->keysize > longest)
             {

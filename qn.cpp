@@ -1,10 +1,4 @@
 #include "qn.h"
-#include "plain_lpm.h"
-#include <iostream>
-#include <fstream>
-#include <string.h>
-#include <algorithm>
-
 
 
 QnFilter::QnFilter(std::string filename){
@@ -21,7 +15,7 @@ QnFilter::QnFilter(std::string filename){
     this->type = "qn";
 }
 
-int QnFilter::filter(std::string ip, int ipVer, std::string queryName, time_t time){
+int QnFilter::filter(std::string ip, int ipVer, std::string queryName, time_t time, uint8_t ttl){
     std::reverse(queryName.begin(), queryName.end());
     struct qname qn = {.n = {0}};
     strncpy(qn.n, queryName.c_str(), QNAME_MAX);

@@ -4,6 +4,11 @@
 #include <cstdint>
 #include "filter.h"
 #include "lpm.h"
+#include "plain_lpm.h"
+#include <iostream>
+#include <fstream>
+#include <string.h>
+#include <algorithm>
 
 #define QNAME_MAX 256
 
@@ -16,7 +21,7 @@ class QnFilter : public Filter
     LPM<struct qname, uint32_t> *lpm;
 public:
     QnFilter(std::string filename);
-    int filter(std::string ip, int ipVer, std::string queryName, time_t time);
+    int filter(std::string ip, int ipVer, std::string queryName, time_t time, uint8_t ttl);
     
 };
 

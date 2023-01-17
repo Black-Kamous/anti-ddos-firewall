@@ -71,7 +71,7 @@ int testDeployed(simplePacket t)
     }
     int res;
     for (auto dit = deployed.begin();dit != deployed.end(); dit++){
-        res = dit->filter(t.ip, ipVer, t.qname, t.time);
+        res = dit->filter(t.ip, ipVer, t.qname, t.time, t.ttl);
         if(res == F_PASSED){
             continue;
         }else if(res == F_DROPPED){
