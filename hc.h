@@ -3,10 +3,12 @@
 
 #include <cstdint>
 #include <map>
+#include <vector>
 #include "filter.h"
 #include "lpm.h"
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include <arpa/inet.h>
 
 typedef struct ipv6addrbin{
@@ -14,12 +16,12 @@ typedef struct ipv6addrbin{
     uint64_t l64;
 }v6addr;
 
-class UrFilter : public Filter
+class HcFilter : public Filter
 {
-    std::map<uint32_t, uint8_t> ipv4map;
-    std::map<v6addr, uint8_t> ipv6map;
+    std::map<uint32_t, std::vector<uint8_t>> ipv4map;
+    std::map<v6addr, std::vector<uint8_t>> ipv6map;
 public:
-    UrFilter(std::string filename);
+    HcFilter(std::string filename);
     int filter(std::string ip, int ipVer, std::string queryName, time_t time, uint8_t ttl);
 };
 

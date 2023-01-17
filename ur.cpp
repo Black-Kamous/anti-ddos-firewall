@@ -38,5 +38,4 @@ int UrFilter::filter(std::string ip, int ipVer, std::string queryName, time_t ti
             return F_DROPPED;
         }
     }
-    return 0;
 }
