@@ -14,14 +14,14 @@ int main(){
     struct shell ip1 = {.in = {255, 0, 0, 0}};
     struct shell ip2 = {.in = {240, 0, 0, 0}};
 
-    
-    lpm->update(ip1, 8, 1);
     lpm->update(ip2, 4, 0);
+    lpm->update(ip1, 8, 2);
+    
 
     
 
-    struct shell ip3 = {.in = {224, 0, 0, 0}};
-    char * v = lpm->lookup(ip3, 3);
+    struct shell ip3 = {.in = {255, 128, 0, 0}};
+    char * v = lpm->lookup(ip3, 9);
     std::cout << (int)*v << std::endl;
     return 0;
 }
