@@ -10,6 +10,8 @@
 
 #include "filter.h"
 #include "qn.h"
+#include "hc.h"
+#include "ur.h"
 
 // 捕包结果 simpack = <ip ttl qname ...>
 
