@@ -5,6 +5,7 @@
 #include "filter.h"
 #include "lpm.h"
 #include "plain_lpm.h"
+#include "qn_train.h"
 #include <iostream>
 #include <fstream>
 #include <string.h>

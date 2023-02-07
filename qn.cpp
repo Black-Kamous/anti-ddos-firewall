@@ -3,10 +3,10 @@
 
 QnFilter::QnFilter(std::string filename){
     lpm = new PlainLPM<struct qname, uint32_t>();
-    std::ifstream in(filename, std::ios::in);
+    std::vector<std::string> res = qn_train(filename);
     std::string qname;
-    while(in.good()){
-        in >> qname;
+    for(auto rit = res.begin(); rit != res.end(); rit++) {
+        qname = *rit;
         std::reverse(qname.begin(), qname.end());
         struct qname qn = {.n = {0}};
         strncpy(qn.n, qname.c_str(), QNAME_MAX);
