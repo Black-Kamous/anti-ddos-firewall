@@ -2,6 +2,13 @@
 
 void loadPackets(std::string filename)
 {
+    std::ifstream in(filename, std::ios::in);
+    simplePacket simpack;
+    
+    while(in.good()){
+        in >> simpack.ip >> simpack.ttl >> simpack.qname >> simpack.time;
+        packets.push_back(simpack);
+    }
 }
 
 int deployFilter(Filter &f)

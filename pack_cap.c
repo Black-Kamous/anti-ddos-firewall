@@ -14,11 +14,11 @@
 #include <netinet/udp.h>
 #include "dns.h"
 
-FILE *qname_out, *ip_out, *ipttl_out;
+FILE *qname_out, *ip_out, *ipttl_out, *all_out;
 
 void save(const char *str, int len)
 {
-  printf("%s|%d\n", str, len);
+  fprintf(all_out, " %s", str);
 }
 
 void saveqname(const char *str, int len)
@@ -40,6 +40,62 @@ void saveipttl(const char *str, uint8_t ttl)
   printf("%s %u\n", str, ttl);
   fprintf(ipttl_out, "%s %u\n", str, ttl);
   fflush(ipttl_out);
+}
+
+void getAll(u_char *arg, const struct pcap_pkthdr *pkthdr, const u_char *packet)
+{
+  void *ptr = (void *)packet;
+
+  // ETH Header
+  uint16_t e_type;
+
+  struct ethhdr *eth;
+  eth = (struct ethhdr *)ptr;
+  e_type = ntohs(eth->h_proto);
+
+  ptr = (void *)((struct ethhdr *)ptr + 1);
+
+  if (e_type != ETH_P_IP)
+  {
+    return;
+  }
+
+  // IP Header
+  struct iphdr *ip;
+  ip = (struct iphdr *)ptr;
+  e_type = ntohs(ip->protocol);
+
+  char paddr[16];
+  inet_ntop(AF_INET, (void *)&ip->saddr, paddr, 16);
+  fprintf(all_out, "%s %u", paddr, ip->ttl);
+
+  ptr = ptr + ip->ihl * 4;
+
+
+  // UDP Header
+  struct udphdr *udp;
+  udp = (struct udphdr *)ptr;
+
+  ptr = (void *)((struct udphdr *)ptr + 1);
+
+  // DNS
+  struct dnshdr *dns;
+  dns = (struct dnshdr *)ptr;
+  dnsqr_list ql = get_qr_list(dns);
+  dnsqr_list head = ql;
+  if (!ql)
+  {
+    return;
+  }
+
+  while (ql)
+  {
+    save(ql->qn.start, ql->qn.len);
+    ql = ql->next;
+  }
+
+  free_qr_list(head);
+  fprintf(all_out, "%lu\n", pkthdr->ts.tv_sec);
 }
 
 void save_qr_raw(const u_char *packet, int packlen)
@@ -85,7 +141,7 @@ void save_qr_raw(const u_char *packet, int packlen)
 
   while (ql)
   {
-    save(ql->qn.start, ql->qn.len);
+    saveqname(ql->qn.start, ql->qn.len);
     ql = ql->next;
   }
 
@@ -183,7 +239,7 @@ int main(int argc, char **argv)
   void (*getter)(u_char *, const struct pcap_pkthdr *, const u_char *) = NULL;
 
   char opt;
-  while ((opt = getopt(argc, argv, "QHU")) != -1)
+  while ((opt = getopt(argc, argv, "AQHU")) != -1)
   {
     switch (opt)
     {
@@ -198,6 +254,10 @@ int main(int argc, char **argv)
     case 'U':
       ip_out = fopen("ip.midd", "w");
       getter = getIP;
+      break;
+      case 'A':
+      all_out = fopen("all.midd", "w");
+      getter = getAll;
       break;
     }
   }

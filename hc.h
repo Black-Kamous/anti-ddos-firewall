@@ -1,5 +1,5 @@
-#ifndef UR_H
-#define UR_H
+#ifndef HC_H
+#define HC_H
 
 #include <cstdint>
 #include <map>
