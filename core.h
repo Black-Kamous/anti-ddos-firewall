@@ -51,4 +51,8 @@ double testAllOnDeployed();
 
 int testDeployed(simplePacket t);
 
+// 单独测试一系列filter
+
+std::vector<double> testSingle(std::vector<Filter> test);
+
 #endif
