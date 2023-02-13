@@ -21,7 +21,7 @@ class QnFilter : public Filter
 {
     LPM<struct qname, uint32_t> *lpm;
 public:
-    QnFilter(std::string filename);
+    QnFilter(std::string filename, int mult=3);
     int filter(std::string ip, int ipVer, std::string queryName, time_t time, uint8_t ttl);
     
 };

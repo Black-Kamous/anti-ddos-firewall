@@ -31,8 +31,8 @@ typedef struct simpack{
 // 全局变量 运行simpack列表
 //
 
-std::deque<Filter> deployed;
-std::vector<simplePacket> packets;
+static std::deque<Filter*> deployed;
+static std::vector<simplePacket> packets;
 
 // 装载运行simpack
 
@@ -53,6 +53,6 @@ int testDeployed(simplePacket t);
 
 // 单独测试一系列filter
 
-std::vector<double> testSingle(std::vector<Filter> test);
+std::vector<double> testSingle(std::vector<Filter*> test);
 
 #endif

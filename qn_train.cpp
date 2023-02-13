@@ -1,5 +1,7 @@
 #include "qn_train.h"
 
+static std::set<std::string> tldset = {"com", "net", "org", "gov", "edu", "cn", "uk", "us", "ru"};
+
 bool is_suffix(std::string base, std::string suf){
     if(base.length() < suf.length())
         return false;
@@ -11,7 +13,7 @@ bool is_suffix(std::string base, std::string suf){
     return true;
 }
 
-std::vector<std::string> qn_train(std::string filename)
+std::vector<std::string> qn_train(std::string filename, int mult=3)
 {
     std::map<std::string, int> sufmap;
     char dmbuf[256];
@@ -61,7 +63,7 @@ std::vector<std::string> qn_train(std::string filename)
 
     simple_print(max);
     simple_print(sec);
-    const int k=3;
+    int k=mult;
     if(max < k*sec){
         return std::vector<std::string>();
     }

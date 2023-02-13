@@ -10,10 +10,8 @@
 
 #define simple_print(p) std::cout<<(p)<<std::endl
 
-std::set<std::string> tldset = {"com", "net", "org", "gov", "edu", "cn", "uk", "us", "ru"};
-
 bool is_suffix(std::string base, std::string suf);
 
-std::vector<std::string> qn_train(std::string filename);
+std::vector<std::string> qn_train(std::string filename, int mult);
 
 #endif

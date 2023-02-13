@@ -17,7 +17,7 @@ std::string ufile = "ip.midd";
 std::string hfile = "ipttl.midd";
 
 double trafThres = 300.0;
-std::deque<Filter> chosen;
+std::deque<Filter*> chosen;
 
 int main(int argc, char **argv)
 {
@@ -49,9 +49,15 @@ int main(int argc, char **argv)
     Filter *qptr = new QnFilter(qfile);
     Filter *uptr = new UrFilter(ufile);
     Filter *hptr = new HcFilter(hfile);
+    double res;
+
 
     // 过滤器单独测试
-    std::vector<Filter> singles = {*qptr, *uptr, *hptr};
+    std::vector<Filter*> singles;
+    singles.push_back(qptr);
+    singles.push_back(uptr);
+    singles.push_back(hptr);
+
     auto singleres = testSingle(singles);
     auto minit = std::min_element(singleres.begin(), singleres.end());
     if (*minit < trafThres)
@@ -62,9 +68,36 @@ int main(int argc, char **argv)
     }
 
     // 如果效果不好，联合测试
+    clearFilter();
 
-    
+    // 方案一
+    deployFilter(*uptr);
+    deployFilter(*hptr);
+
+    res = testAllOnDeployed();
+    if (res < trafThres)
+    {
+        chosen.clear();
+        chosen.emplace_back(uptr);
+        chosen.emplace_back(hptr);
+        goto deploy;
+    }
+
+    // 方案二
+    deployFilter(*qptr);
+
+    res = testAllOnDeployed();
+    if (res < trafThres)
+    {
+        chosen.clear();
+        chosen.emplace_back(uptr);
+        chosen.emplace_back(hptr);
+        chosen.emplace_back(qptr);
+        goto deploy;
+    }
+
 
     // 部署过滤器
 deploy:
+    return 0;
 }

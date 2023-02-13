@@ -15,7 +15,7 @@ int deployFilter(Filter &f)
 {
     for (auto dit = deployed.begin(); dit != deployed.end(); dit++)
     {
-        if (dit->sameType(&f))
+        if ((*dit)->sameType(&f))
         {
             deployed.erase(dit);
             break;
@@ -23,22 +23,22 @@ int deployFilter(Filter &f)
     }
     if (f.type == "qn")
     {
-        deployed.push_front(f);
+        deployed.push_front(&f);
     }
     else if (f.type == "ur")
     {
         for (auto dit = deployed.begin(); dit != deployed.end(); dit++)
         {
-            if (dit->type == "hc")
+            if ((*dit)->type == "hc")
             {
-                deployed.emplace(dit, f);
+                deployed.emplace(dit, &f);
                 break;
             }
         }
     }
     else if (f.type == "hc")
     {
-        deployed.push_back(f);
+        deployed.push_back(&f);
     }
     return 0;
 }
@@ -78,7 +78,7 @@ int testDeployed(simplePacket t)
     }
     int res;
     for (auto dit = deployed.begin();dit != deployed.end(); dit++){
-        res = dit->filter(t.ip, ipVer, t.qname, t.time, t.ttl);
+        res = (*dit)->filter(t.ip, ipVer, t.qname, t.time, t.ttl);
         if(res == F_PASSED){
             continue;
         }else if(res == F_DROPPED){
@@ -88,7 +88,7 @@ int testDeployed(simplePacket t)
     return F_PASSED;
 }
 
-std::vector<double> testSingle(std::vector<Filter> test)
+std::vector<double> testSingle(std::vector<Filter*> test)
 {
     time_t st = ~0u>>1, et = 0;
     int res;
@@ -107,7 +107,7 @@ std::vector<double> testSingle(std::vector<Filter> test)
         }
         for(auto tit = test.begin(); tit < test.end(); ++tit)
         {
-            res = tit->filter(pit->ip, ipVer, pit->qname, pit->time, pit->ttl);
+            res = (*tit)->filter(pit->ip, ipVer, pit->qname, pit->time, pit->ttl);
             if(res == F_PASSED){
                 passed[tit-test.begin()]++;
             }

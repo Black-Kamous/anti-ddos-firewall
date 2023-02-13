@@ -9,10 +9,6 @@
 #include <fstream>
 #include <arpa/inet.h>
 
-typedef struct ipv6addrbin{
-    uint64_t h64;
-    uint64_t l64;
-}v6addr;
 
 class UrFilter : public Filter
 {

@@ -1,9 +1,9 @@
 #include "qn.h"
 
 
-QnFilter::QnFilter(std::string filename){
+QnFilter::QnFilter(std::string filename, int mult){
     lpm = new PlainLPM<struct qname, uint32_t>();
-    std::vector<std::string> res = qn_train(filename);
+    std::vector<std::string> res = qn_train(filename, mult);
     std::string qname;
     for(auto rit = res.begin(); rit != res.end(); rit++) {
         qname = *rit;
