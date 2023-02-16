@@ -95,7 +95,8 @@ void getAll(u_char *arg, const struct pcap_pkthdr *pkthdr, const u_char *packet)
   }
 
   free_qr_list(head);
-  fprintf(all_out, "%lu\n", pkthdr->ts.tv_sec);
+  fprintf(all_out, " %lu\n", pkthdr->ts.tv_sec);
+  fflush(all_out);
 }
 
 void save_qr_raw(const u_char *packet, int packlen)
@@ -284,7 +285,7 @@ int main(int argc, char **argv)
 
   /* open a device, wait until a packet arrives */
   // pcap_t * device = pcap_open_offline("test.pcap",errBuf);     //读取本地文件作为网络包数据
-  pcap_t *device = pcap_open_live(it->name, 65535, 1, 5000, errBuf);
+  pcap_t *device = pcap_open_live(it->name, 65535, 0, 5000, errBuf);
 
   if (!device)
   {

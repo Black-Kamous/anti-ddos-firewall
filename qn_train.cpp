@@ -49,7 +49,6 @@ std::vector<std::string> qn_train(std::string filename, int mult=3)
     std::map<std::string, int>::iterator iter, maxiter;
     iter = sufmap.begin();
     while(iter != sufmap.end()){
-        std::cout << iter->first << " " << iter->second << std::endl;
         if(iter->second > max){
             sec = max;
             max = iter->second;
@@ -61,8 +60,6 @@ std::vector<std::string> qn_train(std::string filename, int mult=3)
     }
     
 
-    simple_print(max);
-    simple_print(sec);
     int k=mult;
     if(max < k*sec){
         return std::vector<std::string>();
