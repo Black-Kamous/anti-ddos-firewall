@@ -12,7 +12,7 @@
 #include "ur.h"
 
 std::string filename = "all.midd";
-std::string qfile = "qname.midd";
+std::string qfile = "domains.t";
 std::string ufile = "ip.midd";
 std::string hfile = "ipttl.midd";
 
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < singles.size(); ++i)
     {
-        simple_print(singles[i]->type + " " + std::to_string(singleres[i]));
+        simple_print(singles[i]->type + " " + std::to_string(singleres[i]*131));
     }
 
     // auto minit = std::min_element(singleres.begin(), singleres.end());
@@ -87,12 +87,12 @@ int main(int argc, char **argv)
         //goto deploy;
     }
 
-    simple_print(res);
+    simple_print(res*131);
     // 方案二
     deployFilter(*qptr);
 
     res = testAllOnDeployed();
-    simple_print(res+1);
+    simple_print(res*131);
     if (res < trafThres)
     {
         chosen.clear();

@@ -24,7 +24,6 @@ public:
 
 static bool is_prefix(uint8_t *pre, uint8_t *base, int prelen, int baselen)
 {
-    return true;
     if (prelen > baselen)
         return false;
     int bytes = prelen/8;

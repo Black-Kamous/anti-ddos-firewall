@@ -4,9 +4,11 @@ void loadPackets(std::string filename)
 {
     std::ifstream in(filename, std::ios::in);
     simplePacket simpack;
+    int ttl;
     
     while(in.good()){
-        in >> simpack.ip >> simpack.ttl >> simpack.qname >> simpack.time;
+        in >> simpack.ip >> ttl >> simpack.qname >> simpack.time;
+        simpack.ttl = ttl;
         packets.push_back(simpack);
     }
 }
