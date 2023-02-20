@@ -6,7 +6,7 @@ HcFilter::HcFilter(std::string filename)
     std::string ip;
     v6addr v6;
     uint32_t v4;
-    uint8_t ttl;
+    int ttl;
     while(in.good()){
         in >> ip >> ttl;
         if(ip.find(':') != std::string::npos){
