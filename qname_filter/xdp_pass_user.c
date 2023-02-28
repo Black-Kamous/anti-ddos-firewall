@@ -8,7 +8,7 @@ static const char *__doc__ = "Simple XDP prog doing XDP_PASS\n";
 #include <getopt.h>
 #include <string.h>
 
-#include <bpf/bpf.h>
+//#include <bpf/bpf.h>
 #include <bpf/libbpf.h>
 
 #include <net/if.h>

@@ -24,13 +24,13 @@ struct qname_lpm_key {
 	char rev_suf[SUF_MAXLEN];
 };
 
-struct {
-        __uint(type, BPF_MAP_TYPE_LPM_TRIE);
-        __type(key, struct qname_lpm_key);
-        __type(value, __u32);
-        __uint(map_flags, BPF_F_NO_PREALLOC);
-        __uint(max_entries, 255);
-} dns_block_suffixes SEC(".maps");
+struct bpf_map_def SEC(".maps") dns_block_suffixes = {
+	.type = BPF_MAP_TYPE_LPM_TRIE,
+	.key_size = sizeof(struct qname_lpm_key),
+	.value_size = 32,
+	.map_flags = BPF_F_NO_PREALLOC,
+	.max_entries = 255
+};
 
 static __always_inline struct qname_lpm_key get_qname_lpm_key(const char* base, void* data_end){
 	struct qname_lpm_key qlk = {
