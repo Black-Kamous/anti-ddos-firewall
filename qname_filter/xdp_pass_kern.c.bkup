@@ -30,7 +30,7 @@ struct {
         __type(value, __u32);
         __uint(map_flags, BPF_F_NO_PREALLOC);
         __uint(max_entries, 255);
-} main_map SEC(".maps");
+} dns_block_suffixes SEC(".maps");
 
 static __always_inline struct qname_lpm_key get_qname_lpm_key(const char* base, void* data_end){
 	struct qname_lpm_key qlk = {
@@ -124,7 +124,7 @@ int xdp_patch_ports_func(struct xdp_md *ctx)
 				goto out;
 			}
 			__u32* tval = NULL;
-			if(!(tval = bpf_map_lookup_elem(&main_map, &qlk))){
+			if(!(tval = bpf_map_lookup_elem(&dns_block_suffixes, &qlk))){
 				action = XDP_PASS;
 				goto out;
 			}else{
