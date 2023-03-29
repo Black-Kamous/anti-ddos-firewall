@@ -55,6 +55,7 @@
         "bpf.h": "c",
         "libbpf.h": "c",
         "bpf_helper_defs.h": "c",
-        "in.h": "c"
+        "in.h": "c",
+        "*.bkup": "c"
     }
 }

@@ -11,65 +11,40 @@
 #include "../common/rewrite_helpers.h"
 #define MAX_SUFFIX_LENGTH 50
 #define MAX_SUFFIX_NUM 100
-#define bpf_printk(fmt, ...)				\
-({                                                      \
-        char ____fmt[] = fmt;                           \
-        bpf_trace_printk(____fmt, sizeof(____fmt),      \
-                         ##__VA_ARGS__);                \
-})
 
-struct ipv4_lpm_key {
-        __u32 prefixlen;
-        __u8 data[16];
+struct inner_map{
+	__uint(type, BPF_MAP_TYPE_HASH);
+	__uint(max_entries, 8);
+	__type(key, __u32);
+	__type(value, __u32);
 };
 
 struct {
-        __uint(type, BPF_MAP_TYPE_LPM_TRIE);
-        __type(key, struct ipv4_lpm_key);
-        __type(value, __u32);
-        __uint(map_flags, BPF_F_NO_PREALLOC);
+        __uint(type, BPF_MAP_TYPE_HASH_OF_MAPS);
+        __type(key, __u32);
+        //__type(value, __u32);
         __uint(max_entries, 255);
-} dns_block_suffixes SEC(".maps");
+		__array(values, struct inner_map);
+} main_map SEC(".maps");
 
-static __always_inline int parse_iphdr_saddr(struct hdr_cursor *nh,
-				       void *data_end,
-				       struct iphdr **iphdr)
-{
-	struct iphdr *iph = nh->pos;
-	int hdrsize;
+// struct bpf_map_def SEC("maps") main_map = {
+// 	.type = BPF_MAP_TYPE_HASH_OF_MAPS,
+// 	.key_size = sizeof(__u32),
+// 	.value_size = sizeof(__u32),
+// 	.max_entries = 255
+// };
 
-	if (iph + 1 > data_end)
-		return -1;
-
-	hdrsize = iph->ihl * 4;
-	/* Sanity check packet field is valid */
-	if(hdrsize < sizeof(*iph))
-		return -1;
-
-	/* Variable-length IPv4 header, need to use byte-based arithmetic */
-	if (nh->pos + hdrsize > data_end)
-		return -1;
-
-	nh->pos += hdrsize;
-	*iphdr = iph;
-
-	return iph->saddr;
-}
-
-#define DM_MAXLEN 2561
 
 /*
  * Solution to the assignment 1 in lesson packet02
  */
-SEC("xdp_patch_ports")
+SEC("xdp")
 int xdp_patch_ports_func(struct xdp_md *ctx)
 {
 	int action = XDP_PASS;
 	int eth_type;
 	__u32 saddrv4;
 	struct ethhdr *eth;
-	struct iphdr *iphdr;
-	struct ipv6hdr *ipv6hdr;
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 	struct hdr_cursor nh = { .pos = data };
@@ -79,22 +54,43 @@ int xdp_patch_ports_func(struct xdp_md *ctx)
 		action = XDP_ABORTED;
 		goto out;
 	}
+	bpf_printk("Here\n");
 
 	if (eth_type == bpf_htons(ETH_P_IP)) {
-		saddrv4 = parse_iphdr_saddr(&nh, data_end, &iphdr);
+		struct iphdr *iph = nh.pos;
+		int hdrsize;
+		__u8 ttl = 255;
 
-		struct ipv4_lpm_key key = {.prefixlen = 128, .data = {0}};
-		*(__u32*)key.data = saddrv4;
+		if (iph + 1 > data_end)
+			return XDP_ABORTED;
 
-        long* res = NULL; 
-        res = bpf_map_lookup_elem(&dns_block_suffixes, &key);
+		hdrsize = iph->ihl * 4;
+		/* Sanity check packet field is valid */
+		if(hdrsize < sizeof(*iph))
+			return XDP_ABORTED;
+
+		/* Variable-length IPv4 header, need to use byte-based arithmetic */
+		if (nh.pos + hdrsize > data_end)
+			return XDP_ABORTED;
+
+		nh.pos += hdrsize;
+		ttl = iph->ttl;
+		saddrv4 = iph->saddr;
+
+        struct inner_map* res = NULL; 
+        res = bpf_map_lookup_elem(&main_map, &saddrv4);
+		bpf_printk("inner map %d\n", res);
+
+		__u32 *ttlp;
         if(res){
-            action = XDP_DROP;
-            goto out;
+			ttlp = bpf_map_lookup_elem(res, &ttl);
+			bpf_printk("ttl %d, %ld in map\n", (int)ttl, (long)ttlp);
+			if(!ttlp && (*ttlp) == 1){
+				action = XDP_PASS;
+				goto out;
+			}
         }
-
-	} else if (eth_type == bpf_htons(ETH_P_IPV6)) {
-		saddrv4 = parse_ip6hdr(&nh, data_end, &ipv6hdr);
+		action = XDP_DROP;
 	} else {
 		goto out;
 	}

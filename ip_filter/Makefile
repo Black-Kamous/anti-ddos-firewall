@@ -7,8 +7,17 @@ LLC ?= llc
 CLANG ?= clang
 CC := gcc
 
-LIBBPF_DIR = ../libbpf/src/
+LIBBPF_DIR = ../../multi-filters/lib/libbpf/src/
 COMMON_DIR = ../common/
+
+USER_LIBS += -lz
 
 include $(COMMON_DIR)/common.mk
 COMMON_OBJS := $(COMMON_DIR)/common_params.o
+
+
+unload: 
+	ip link set dev eth0 xdpgeneric off
+
+show: 
+	ip link show dev eth0

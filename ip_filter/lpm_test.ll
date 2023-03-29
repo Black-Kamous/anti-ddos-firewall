@@ -3,479 +3,492 @@ source_filename = "lpm_test.c"
 target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n32:64-S128"
 target triple = "bpf"
 
-%struct.ipv4_lpm_key = type { i32, [16 x i8] }
-%struct.anon = type { [11 x i32]*, %struct.ipv4_lpm_key*, i32*, [1 x i32]*, [255 x i32]* }
-%struct.xdp_md = type { i32, i32, i32, i32, i32, i32 }
+%struct.anon = type { [13 x i32]*, i32*, [255 x i32]*, [0 x %struct.inner_map*] }
+%struct.inner_map = type { [1 x i32]*, [8 x i32]*, i32*, i32* }
+%struct.xdp_md = type { i32, i32, i32, i32, i32 }
 %struct.ethhdr = type { [6 x i8], [6 x i8], i16 }
 %struct.hdr_cursor = type { i8* }
 %struct.collect_vlans = type { [2 x i16] }
 %struct.vlan_hdr = type { i16, i16 }
 %struct.iphdr = type { i8, i8, i16, i16, i16, i8, i8, i16, i32, i32 }
 
-@__const.xdp_patch_ports_func.key = private unnamed_addr constant %struct.ipv4_lpm_key { i32 128, [16 x i8] zeroinitializer }, align 4
-@dns_block_suffixes = dso_local global %struct.anon zeroinitializer, section ".maps", align 8, !dbg !0
-@_license = dso_local global [4 x i8] c"GPL\00", section "license", align 1, !dbg !23
-@llvm.compiler.used = appending global [3 x i8*] [i8* getelementptr inbounds ([4 x i8], [4 x i8]* @_license, i32 0, i32 0), i8* bitcast (%struct.anon* @dns_block_suffixes to i8*), i8* bitcast (i32 (%struct.xdp_md*)* @xdp_patch_ports_func to i8*)], section "llvm.metadata"
+@xdp_patch_ports_func.____fmt = internal constant [6 x i8] c"Here\0A\00", align 1, !dbg !0
+@main_map = dso_local global %struct.anon zeroinitializer, section ".maps", align 8, !dbg !51
+@xdp_patch_ports_func.____fmt.1 = internal constant [14 x i8] c"inner map %d\0A\00", align 1, !dbg !34
+@xdp_patch_ports_func.____fmt.2 = internal constant [20 x i8] c"ttl %d, %ld in map\0A\00", align 1, !dbg !41
+@_license = dso_local global [4 x i8] c"GPL\00", section "license", align 1, !dbg !46
+@llvm.compiler.used = appending global [3 x i8*] [i8* getelementptr inbounds ([4 x i8], [4 x i8]* @_license, i32 0, i32 0), i8* bitcast (%struct.anon* @main_map to i8*), i8* bitcast (i32 (%struct.xdp_md*)* @xdp_patch_ports_func to i8*)], section "llvm.metadata"
 
 ; Function Attrs: nounwind
-define dso_local i32 @xdp_patch_ports_func(%struct.xdp_md* nocapture readonly %0) #0 section "xdp_patch_ports" !dbg !72 {
-  %2 = alloca %struct.ipv4_lpm_key, align 4
-  call void @llvm.dbg.value(metadata %struct.xdp_md* %0, metadata !85, metadata !DIExpression()), !dbg !162
-  call void @llvm.dbg.value(metadata i32 2, metadata !86, metadata !DIExpression()), !dbg !162
-  %3 = getelementptr inbounds %struct.xdp_md, %struct.xdp_md* %0, i64 0, i32 1, !dbg !163
-  %4 = load i32, i32* %3, align 4, !dbg !163, !tbaa !164
-  %5 = zext i32 %4 to i64, !dbg !169
-  %6 = inttoptr i64 %5 to i8*, !dbg !170
-  call void @llvm.dbg.value(metadata i8* %6, metadata !149, metadata !DIExpression()), !dbg !162
-  %7 = getelementptr inbounds %struct.xdp_md, %struct.xdp_md* %0, i64 0, i32 0, !dbg !171
-  %8 = load i32, i32* %7, align 4, !dbg !171, !tbaa !172
-  %9 = zext i32 %8 to i64, !dbg !173
-  %10 = inttoptr i64 %9 to i8*, !dbg !174
-  call void @llvm.dbg.value(metadata i8* %10, metadata !150, metadata !DIExpression()), !dbg !162
-  call void @llvm.dbg.value(metadata i8* %10, metadata !151, metadata !DIExpression()), !dbg !162
-  call void @llvm.dbg.value(metadata %struct.ethhdr** undef, metadata !89, metadata !DIExpression(DW_OP_deref)), !dbg !162
-  call void @llvm.dbg.value(metadata %struct.hdr_cursor* undef, metadata !175, metadata !DIExpression()) #6, !dbg !184
-  call void @llvm.dbg.value(metadata i8* %6, metadata !182, metadata !DIExpression()) #6, !dbg !184
-  call void @llvm.dbg.value(metadata %struct.ethhdr** undef, metadata !183, metadata !DIExpression()) #6, !dbg !184
-  call void @llvm.dbg.value(metadata %struct.hdr_cursor* undef, metadata !186, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata i8* %6, metadata !198, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata %struct.ethhdr** undef, metadata !199, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata %struct.collect_vlans* null, metadata !200, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata i8* %10, metadata !201, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata i32 14, metadata !202, metadata !DIExpression()) #6, !dbg !211
-  %11 = getelementptr i8, i8* %10, i64 14, !dbg !213
-  %12 = icmp ugt i8* %11, %6, !dbg !215
-  br i1 %12, label %72, label %13, !dbg !216
+define dso_local i32 @xdp_patch_ports_func(%struct.xdp_md* nocapture readonly %0) #0 section "xdp" !dbg !2 {
+  %2 = alloca i32, align 4
+  %3 = alloca i8, align 1
+  call void @llvm.dbg.value(metadata %struct.xdp_md* %0, metadata !101, metadata !DIExpression()), !dbg !158
+  call void @llvm.dbg.value(metadata i32 2, metadata !102, metadata !DIExpression()), !dbg !158
+  %4 = bitcast i32* %2 to i8*, !dbg !159
+  call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %4) #4, !dbg !159
+  %5 = getelementptr inbounds %struct.xdp_md, %struct.xdp_md* %0, i64 0, i32 1, !dbg !160
+  %6 = load i32, i32* %5, align 4, !dbg !160, !tbaa !161
+  %7 = zext i32 %6 to i64, !dbg !166
+  %8 = inttoptr i64 %7 to i8*, !dbg !167
+  call void @llvm.dbg.value(metadata i8* %8, metadata !119, metadata !DIExpression()), !dbg !158
+  %9 = getelementptr inbounds %struct.xdp_md, %struct.xdp_md* %0, i64 0, i32 0, !dbg !168
+  %10 = load i32, i32* %9, align 4, !dbg !168, !tbaa !169
+  %11 = zext i32 %10 to i64, !dbg !170
+  %12 = inttoptr i64 %11 to i8*, !dbg !171
+  call void @llvm.dbg.value(metadata i8* %12, metadata !120, metadata !DIExpression()), !dbg !158
+  call void @llvm.dbg.value(metadata i8* %12, metadata !121, metadata !DIExpression()), !dbg !158
+  call void @llvm.dbg.value(metadata %struct.ethhdr** undef, metadata !105, metadata !DIExpression(DW_OP_deref)), !dbg !158
+  call void @llvm.dbg.value(metadata %struct.hdr_cursor* undef, metadata !172, metadata !DIExpression()) #4, !dbg !181
+  call void @llvm.dbg.value(metadata i8* %8, metadata !179, metadata !DIExpression()) #4, !dbg !181
+  call void @llvm.dbg.value(metadata %struct.ethhdr** undef, metadata !180, metadata !DIExpression()) #4, !dbg !181
+  call void @llvm.dbg.value(metadata %struct.hdr_cursor* undef, metadata !183, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata i8* %8, metadata !195, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata %struct.ethhdr** undef, metadata !196, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata %struct.collect_vlans* null, metadata !197, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata i8* %12, metadata !198, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata i32 14, metadata !199, metadata !DIExpression()) #4, !dbg !208
+  %13 = getelementptr i8, i8* %12, i64 14, !dbg !210
+  %14 = icmp ugt i8* %13, %8, !dbg !212
+  br i1 %14, label %82, label %15, !dbg !213
 
-13:                                               ; preds = %1
-  call void @llvm.dbg.value(metadata i8* %10, metadata !201, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata i8* %11, metadata !151, metadata !DIExpression()), !dbg !162
-  call void @llvm.dbg.value(metadata i8* %11, metadata !203, metadata !DIExpression()) #6, !dbg !211
-  %14 = getelementptr inbounds i8, i8* %10, i64 12, !dbg !217
-  %15 = bitcast i8* %14 to i16*, !dbg !217
-  call void @llvm.dbg.value(metadata i16 undef, metadata !209, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata i32 0, metadata !210, metadata !DIExpression()) #6, !dbg !211
-  %16 = inttoptr i64 %5 to %struct.vlan_hdr*
-  %17 = load i16, i16* %15, align 1, !dbg !211, !tbaa !218
-  call void @llvm.dbg.value(metadata i16 %17, metadata !209, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata i16 %17, metadata !220, metadata !DIExpression()) #6, !dbg !225
-  %18 = icmp eq i16 %17, 129, !dbg !231
-  %19 = icmp ne i16 %17, -22392, !dbg !232
-  %20 = tail call i1 @llvm.bpf.passthrough.i1.i1(i32 0, i1 %18) #6
-  %21 = xor i1 %20, true, !dbg !232
-  %22 = select i1 %21, i1 %19, i1 false, !dbg !232
-  br i1 %22, label %44, label %23, !dbg !233
+15:                                               ; preds = %1
+  call void @llvm.dbg.value(metadata i8* %12, metadata !198, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata i8* %13, metadata !121, metadata !DIExpression()), !dbg !158
+  call void @llvm.dbg.value(metadata i8* %13, metadata !200, metadata !DIExpression()) #4, !dbg !208
+  %16 = getelementptr inbounds i8, i8* %12, i64 12, !dbg !214
+  %17 = bitcast i8* %16 to i16*, !dbg !214
+  call void @llvm.dbg.value(metadata i16 undef, metadata !206, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata i32 0, metadata !207, metadata !DIExpression()) #4, !dbg !208
+  %18 = inttoptr i64 %7 to %struct.vlan_hdr*
+  %19 = load i16, i16* %17, align 1, !dbg !208, !tbaa !215
+  call void @llvm.dbg.value(metadata i16 %19, metadata !206, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata i16 %19, metadata !217, metadata !DIExpression()) #4, !dbg !222
+  %20 = icmp eq i16 %19, 129, !dbg !228
+  %21 = icmp ne i16 %19, -22392, !dbg !229
+  %22 = tail call i1 @llvm.bpf.passthrough.i1.i1(i32 0, i1 %20) #4
+  %23 = xor i1 %22, true, !dbg !229
+  %24 = select i1 %23, i1 %21, i1 false, !dbg !229
+  br i1 %24, label %46, label %25, !dbg !230
 
-23:                                               ; preds = %13
-  %24 = getelementptr i8, i8* %10, i64 18, !dbg !234
-  %25 = bitcast i8* %24 to %struct.vlan_hdr*, !dbg !234
-  %26 = icmp ugt %struct.vlan_hdr* %25, %16, !dbg !236
-  br i1 %26, label %44, label %27, !dbg !237
+25:                                               ; preds = %15
+  %26 = getelementptr i8, i8* %12, i64 18, !dbg !231
+  %27 = bitcast i8* %26 to %struct.vlan_hdr*, !dbg !231
+  %28 = icmp ugt %struct.vlan_hdr* %27, %18, !dbg !233
+  br i1 %28, label %46, label %29, !dbg !234
 
-27:                                               ; preds = %23
-  call void @llvm.dbg.value(metadata i16 undef, metadata !209, metadata !DIExpression()) #6, !dbg !211
-  %28 = getelementptr i8, i8* %10, i64 16, !dbg !238
-  %29 = bitcast i8* %28 to i16*, !dbg !238
-  call void @llvm.dbg.value(metadata %struct.vlan_hdr* %25, metadata !203, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata i32 1, metadata !210, metadata !DIExpression()) #6, !dbg !211
-  %30 = load i16, i16* %29, align 1, !dbg !211, !tbaa !218
-  call void @llvm.dbg.value(metadata i16 %30, metadata !209, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata i16 %30, metadata !220, metadata !DIExpression()) #6, !dbg !225
-  %31 = icmp eq i16 %30, 129, !dbg !231
-  %32 = icmp ne i16 %30, -22392, !dbg !232
-  %33 = tail call i1 @llvm.bpf.passthrough.i1.i1(i32 0, i1 %31) #6
-  %34 = xor i1 %33, true, !dbg !232
-  %35 = select i1 %34, i1 %32, i1 false, !dbg !232
-  br i1 %35, label %44, label %36, !dbg !233
+29:                                               ; preds = %25
+  call void @llvm.dbg.value(metadata i16 undef, metadata !206, metadata !DIExpression()) #4, !dbg !208
+  %30 = getelementptr i8, i8* %12, i64 16, !dbg !235
+  %31 = bitcast i8* %30 to i16*, !dbg !235
+  call void @llvm.dbg.value(metadata %struct.vlan_hdr* %27, metadata !200, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata i32 1, metadata !207, metadata !DIExpression()) #4, !dbg !208
+  %32 = load i16, i16* %31, align 1, !dbg !208, !tbaa !215
+  call void @llvm.dbg.value(metadata i16 %32, metadata !206, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata i16 %32, metadata !217, metadata !DIExpression()) #4, !dbg !222
+  %33 = icmp eq i16 %32, 129, !dbg !228
+  %34 = icmp ne i16 %32, -22392, !dbg !229
+  %35 = tail call i1 @llvm.bpf.passthrough.i1.i1(i32 0, i1 %33) #4
+  %36 = xor i1 %35, true, !dbg !229
+  %37 = select i1 %36, i1 %34, i1 false, !dbg !229
+  br i1 %37, label %46, label %38, !dbg !230
 
-36:                                               ; preds = %27
-  %37 = getelementptr i8, i8* %10, i64 22, !dbg !234
-  %38 = bitcast i8* %37 to %struct.vlan_hdr*, !dbg !234
-  %39 = icmp ugt %struct.vlan_hdr* %38, %16, !dbg !236
-  br i1 %39, label %44, label %40, !dbg !237
+38:                                               ; preds = %29
+  %39 = getelementptr i8, i8* %12, i64 22, !dbg !231
+  %40 = bitcast i8* %39 to %struct.vlan_hdr*, !dbg !231
+  %41 = icmp ugt %struct.vlan_hdr* %40, %18, !dbg !233
+  br i1 %41, label %46, label %42, !dbg !234
 
-40:                                               ; preds = %36
-  call void @llvm.dbg.value(metadata i16 undef, metadata !209, metadata !DIExpression()) #6, !dbg !211
-  %41 = getelementptr i8, i8* %10, i64 20, !dbg !238
-  %42 = bitcast i8* %41 to i16*, !dbg !238
-  call void @llvm.dbg.value(metadata %struct.vlan_hdr* %38, metadata !203, metadata !DIExpression()) #6, !dbg !211
-  call void @llvm.dbg.value(metadata i32 2, metadata !210, metadata !DIExpression()) #6, !dbg !211
-  %43 = load i16, i16* %42, align 1, !dbg !211, !tbaa !218
-  call void @llvm.dbg.value(metadata i16 %43, metadata !209, metadata !DIExpression()) #6, !dbg !211
-  br label %44
+42:                                               ; preds = %38
+  call void @llvm.dbg.value(metadata i16 undef, metadata !206, metadata !DIExpression()) #4, !dbg !208
+  %43 = getelementptr i8, i8* %12, i64 20, !dbg !235
+  %44 = bitcast i8* %43 to i16*, !dbg !235
+  call void @llvm.dbg.value(metadata %struct.vlan_hdr* %40, metadata !200, metadata !DIExpression()) #4, !dbg !208
+  call void @llvm.dbg.value(metadata i32 2, metadata !207, metadata !DIExpression()) #4, !dbg !208
+  %45 = load i16, i16* %44, align 1, !dbg !208, !tbaa !215
+  call void @llvm.dbg.value(metadata i16 %45, metadata !206, metadata !DIExpression()) #4, !dbg !208
+  br label %46
 
-44:                                               ; preds = %13, %23, %27, %36, %40
-  %45 = phi i8* [ %11, %23 ], [ %11, %13 ], [ %24, %27 ], [ %24, %36 ], [ %37, %40 ], !dbg !211
-  %46 = phi i16 [ %17, %23 ], [ %17, %13 ], [ %30, %27 ], [ %30, %36 ], [ %43, %40 ], !dbg !211
-  call void @llvm.dbg.value(metadata i8* %45, metadata !151, metadata !DIExpression()), !dbg !162
-  call void @llvm.dbg.value(metadata i16 %46, metadata !87, metadata !DIExpression(DW_OP_LLVM_convert, 16, DW_ATE_unsigned, DW_OP_LLVM_convert, 32, DW_ATE_unsigned, DW_OP_stack_value)), !dbg !162
-  %47 = icmp eq i16 %46, 8, !dbg !239
-  br i1 %47, label %48, label %72, !dbg !239
+46:                                               ; preds = %15, %25, %29, %38, %42
+  %47 = phi i8* [ %13, %25 ], [ %13, %15 ], [ %26, %29 ], [ %26, %38 ], [ %39, %42 ], !dbg !208
+  %48 = phi i16 [ %19, %25 ], [ %19, %15 ], [ %32, %29 ], [ %32, %38 ], [ %45, %42 ], !dbg !208
+  call void @llvm.dbg.value(metadata i8* %47, metadata !121, metadata !DIExpression()), !dbg !158
+  call void @llvm.dbg.value(metadata i16 %48, metadata !103, metadata !DIExpression(DW_OP_LLVM_convert, 16, DW_ATE_unsigned, DW_OP_LLVM_convert, 32, DW_ATE_unsigned, DW_OP_stack_value)), !dbg !158
+  %49 = tail call i64 (i8*, i32, ...) inttoptr (i64 6 to i64 (i8*, i32, ...)*)(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @xdp_patch_ports_func.____fmt, i64 0, i64 0), i32 6) #4, !dbg !236
+  %50 = icmp eq i16 %48, 8, !dbg !238
+  br i1 %50, label %51, label %82, !dbg !239
 
-48:                                               ; preds = %44
-  call void @llvm.dbg.value(metadata %struct.iphdr** undef, metadata !102, metadata !DIExpression(DW_OP_deref)), !dbg !162
-  call void @llvm.dbg.value(metadata %struct.hdr_cursor* undef, metadata !240, metadata !DIExpression()), !dbg !250
-  call void @llvm.dbg.value(metadata i8* %6, metadata !246, metadata !DIExpression()), !dbg !250
-  call void @llvm.dbg.value(metadata %struct.iphdr** undef, metadata !247, metadata !DIExpression()), !dbg !250
-  call void @llvm.dbg.value(metadata i8* %45, metadata !248, metadata !DIExpression()), !dbg !250
-  %49 = getelementptr inbounds i8, i8* %45, i64 20, !dbg !252
-  %50 = icmp ugt i8* %49, %6, !dbg !254
-  br i1 %50, label %64, label %51, !dbg !255
-
-51:                                               ; preds = %48
-  %52 = load i8, i8* %45, align 4, !dbg !256
-  %53 = shl i8 %52, 2, !dbg !257
-  %54 = and i8 %53, 60, !dbg !257
-  call void @llvm.dbg.value(metadata i8 %54, metadata !249, metadata !DIExpression(DW_OP_LLVM_convert, 8, DW_ATE_unsigned, DW_OP_LLVM_convert, 64, DW_ATE_unsigned, DW_OP_stack_value)), !dbg !250
-  %55 = icmp ult i8 %54, 20, !dbg !258
-  br i1 %55, label %64, label %56, !dbg !260
+51:                                               ; preds = %46
+  call void @llvm.dbg.value(metadata i8* %47, metadata !126, metadata !DIExpression()), !dbg !240
+  call void @llvm.lifetime.start.p0i8(i64 1, i8* nonnull %3) #4, !dbg !241
+  call void @llvm.dbg.value(metadata i8 -1, metadata !148, metadata !DIExpression()), !dbg !240
+  store i8 -1, i8* %3, align 1, !dbg !242, !tbaa !243
+  %52 = getelementptr inbounds i8, i8* %47, i64 20, !dbg !244
+  %53 = bitcast i8* %52 to %struct.iphdr*, !dbg !244
+  %54 = inttoptr i64 %7 to %struct.iphdr*, !dbg !246
+  %55 = icmp ugt %struct.iphdr* %53, %54, !dbg !247
+  br i1 %55, label %80, label %56, !dbg !248
 
 56:                                               ; preds = %51
-  %57 = zext i8 %54 to i64
-  call void @llvm.dbg.value(metadata i64 %57, metadata !249, metadata !DIExpression()), !dbg !250
-  %58 = getelementptr i8, i8* %45, i64 %57, !dbg !261
-  %59 = icmp ugt i8* %58, %6, !dbg !263
-  br i1 %59, label %64, label %60, !dbg !264
+  %57 = load i8, i8* %47, align 4, !dbg !249
+  %58 = shl i8 %57, 2, !dbg !250
+  %59 = and i8 %58, 60, !dbg !250
+  call void @llvm.dbg.value(metadata i8 %59, metadata !147, metadata !DIExpression(DW_OP_LLVM_convert, 8, DW_ATE_unsigned, DW_OP_LLVM_convert, 64, DW_ATE_unsigned, DW_OP_stack_value)), !dbg !240
+  %60 = icmp ult i8 %59, 20, !dbg !251
+  br i1 %60, label %80, label %61, !dbg !253
 
-60:                                               ; preds = %56
-  call void @llvm.dbg.value(metadata i8* %58, metadata !151, metadata !DIExpression()), !dbg !162
-  %61 = getelementptr inbounds i8, i8* %45, i64 12, !dbg !265
-  %62 = bitcast i8* %61 to i32*, !dbg !265
-  %63 = load i32, i32* %62, align 4, !dbg !265, !tbaa !266
-  br label %64, !dbg !268
+61:                                               ; preds = %56
+  %62 = zext i8 %59 to i64
+  call void @llvm.dbg.value(metadata i64 %62, metadata !147, metadata !DIExpression()), !dbg !240
+  %63 = getelementptr i8, i8* %47, i64 %62, !dbg !254
+  %64 = icmp ugt i8* %63, %8, !dbg !256
+  br i1 %64, label %80, label %65, !dbg !257
 
-64:                                               ; preds = %48, %51, %56, %60
-  %65 = phi i32 [ %63, %60 ], [ -1, %48 ], [ -1, %51 ], [ -1, %56 ], !dbg !250
-  call void @llvm.dbg.value(metadata i32 %65, metadata !88, metadata !DIExpression()), !dbg !162
-  %66 = bitcast %struct.ipv4_lpm_key* %2 to i8*, !dbg !269
-  call void @llvm.lifetime.start.p0i8(i64 20, i8* nonnull %66) #6, !dbg !269
-  call void @llvm.dbg.declare(metadata %struct.ipv4_lpm_key* %2, metadata !156, metadata !DIExpression()), !dbg !270
-  call void @llvm.memcpy.p0i8.p0i8.i64(i8* noundef nonnull align 4 dereferenceable(20) %66, i8* noundef nonnull align 4 dereferenceable(20) bitcast (%struct.ipv4_lpm_key* @__const.xdp_patch_ports_func.key to i8*), i64 20, i1 false), !dbg !270
-  %67 = getelementptr inbounds %struct.ipv4_lpm_key, %struct.ipv4_lpm_key* %2, i64 0, i32 1, i64 0, !dbg !271
-  %68 = bitcast i8* %67 to i32*, !dbg !271
-  store i32 %65, i32* %68, align 4, !dbg !272, !tbaa !273
-  call void @llvm.dbg.value(metadata i64* null, metadata !159, metadata !DIExpression()), !dbg !274
-  %69 = call i8* inttoptr (i64 1 to i8* (i8*, i8*)*)(i8* bitcast (%struct.anon* @dns_block_suffixes to i8*), i8* nonnull %66) #6, !dbg !275
-  call void @llvm.dbg.value(metadata i8* %69, metadata !159, metadata !DIExpression()), !dbg !274
-  %70 = icmp eq i8* %69, null, !dbg !276
-  %71 = select i1 %70, i32 2, i32 1, !dbg !278
-  call void @llvm.dbg.value(metadata i32 %71, metadata !86, metadata !DIExpression()), !dbg !162
-  call void @llvm.lifetime.end.p0i8(i64 20, i8* nonnull %66) #6, !dbg !279
-  br label %72
+65:                                               ; preds = %61
+  call void @llvm.dbg.value(metadata i8* %63, metadata !121, metadata !DIExpression()), !dbg !158
+  %66 = getelementptr inbounds i8, i8* %47, i64 8, !dbg !258
+  %67 = load i8, i8* %66, align 4, !dbg !258, !tbaa !259
+  call void @llvm.dbg.value(metadata i8 %67, metadata !148, metadata !DIExpression()), !dbg !240
+  store i8 %67, i8* %3, align 1, !dbg !261, !tbaa !243
+  %68 = getelementptr inbounds i8, i8* %47, i64 12, !dbg !262
+  %69 = bitcast i8* %68 to i32*, !dbg !262
+  %70 = load i32, i32* %69, align 4, !dbg !262, !tbaa !263
+  call void @llvm.dbg.value(metadata i32 %70, metadata !104, metadata !DIExpression()), !dbg !158
+  store i32 %70, i32* %2, align 4, !dbg !264, !tbaa !265
+  call void @llvm.dbg.value(metadata %struct.inner_map* null, metadata !149, metadata !DIExpression()), !dbg !240
+  call void @llvm.dbg.value(metadata i32* %2, metadata !104, metadata !DIExpression(DW_OP_deref)), !dbg !158
+  %71 = call i8* inttoptr (i64 1 to i8* (i8*, i8*)*)(i8* bitcast (%struct.anon* @main_map to i8*), i8* nonnull %4) #4, !dbg !266
+  call void @llvm.dbg.value(metadata i8* %71, metadata !149, metadata !DIExpression()), !dbg !240
+  %72 = call i64 (i8*, i32, ...) inttoptr (i64 6 to i64 (i8*, i32, ...)*)(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @xdp_patch_ports_func.____fmt.1, i64 0, i64 0), i32 14, i8* %71) #4, !dbg !267
+  %73 = icmp eq i8* %71, null, !dbg !269
+  br i1 %73, label %81, label %74, !dbg !271
 
-72:                                               ; preds = %44, %1, %64
-  %73 = phi i32 [ %71, %64 ], [ 0, %1 ], [ 2, %44 ]
-  ret i32 %73, !dbg !280
+74:                                               ; preds = %65
+  call void @llvm.dbg.value(metadata i8* %3, metadata !148, metadata !DIExpression(DW_OP_deref)), !dbg !240
+  %75 = call i8* inttoptr (i64 1 to i8* (i8*, i8*)*)(i8* nonnull %71, i8* nonnull %3) #4, !dbg !272
+  call void @llvm.dbg.value(metadata i8* %75, metadata !150, metadata !DIExpression()), !dbg !240
+  %76 = load i8, i8* %3, align 1, !dbg !274, !tbaa !243
+  call void @llvm.dbg.value(metadata i8 %76, metadata !148, metadata !DIExpression()), !dbg !240
+  %77 = zext i8 %76 to i32, !dbg !274
+  %78 = ptrtoint i8* %75 to i64, !dbg !274
+  %79 = call i64 (i8*, i32, ...) inttoptr (i64 6 to i64 (i8*, i32, ...)*)(i8* getelementptr inbounds ([20 x i8], [20 x i8]* @xdp_patch_ports_func.____fmt.2, i64 0, i64 0), i32 20, i32 %77, i64 %78) #4, !dbg !274
+  br label %81, !dbg !276
+
+80:                                               ; preds = %51, %56, %61
+  call void @llvm.dbg.value(metadata i32 1, metadata !102, metadata !DIExpression()), !dbg !158
+  call void @llvm.lifetime.end.p0i8(i64 1, i8* nonnull %3) #4, !dbg !278
+  br label %82
+
+81:                                               ; preds = %65, %74
+  call void @llvm.dbg.value(metadata i32 1, metadata !102, metadata !DIExpression()), !dbg !158
+  call void @llvm.lifetime.end.p0i8(i64 1, i8* nonnull %3) #4, !dbg !278
+  br label %82
+
+82:                                               ; preds = %1, %46, %81, %80
+  %83 = phi i32 [ 0, %80 ], [ 1, %81 ], [ 2, %46 ], [ 0, %1 ], !dbg !158
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %4) #4, !dbg !279
+  ret i32 %83, !dbg !279
 }
 
-; Function Attrs: mustprogress nofree nosync nounwind readnone speculatable willreturn
-declare void @llvm.dbg.declare(metadata, metadata, metadata) #1
+; Function Attrs: argmemonly mustprogress nofree nosync nounwind willreturn
+declare void @llvm.lifetime.start.p0i8(i64 immarg, i8* nocapture) #1
 
 ; Function Attrs: argmemonly mustprogress nofree nosync nounwind willreturn
-declare void @llvm.lifetime.start.p0i8(i64 immarg, i8* nocapture) #2
-
-; Function Attrs: argmemonly mustprogress nofree nounwind willreturn
-declare void @llvm.memcpy.p0i8.p0i8.i64(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i64, i1 immarg) #3
-
-; Function Attrs: argmemonly mustprogress nofree nosync nounwind willreturn
-declare void @llvm.lifetime.end.p0i8(i64 immarg, i8* nocapture) #2
+declare void @llvm.lifetime.end.p0i8(i64 immarg, i8* nocapture) #1
 
 ; Function Attrs: nofree nosync nounwind readnone speculatable willreturn
-declare void @llvm.dbg.value(metadata, metadata, metadata) #4
+declare void @llvm.dbg.value(metadata, metadata, metadata) #2
 
 ; Function Attrs: nounwind readnone
-declare i1 @llvm.bpf.passthrough.i1.i1(i32, i1) #5
+declare i1 @llvm.bpf.passthrough.i1.i1(i32, i1) #3
 
 attributes #0 = { nounwind "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" }
-attributes #1 = { mustprogress nofree nosync nounwind readnone speculatable willreturn }
-attributes #2 = { argmemonly mustprogress nofree nosync nounwind willreturn }
-attributes #3 = { argmemonly mustprogress nofree nounwind willreturn }
-attributes #4 = { nofree nosync nounwind readnone speculatable willreturn }
-attributes #5 = { nounwind readnone }
-attributes #6 = { nounwind }
+attributes #1 = { argmemonly mustprogress nofree nosync nounwind willreturn }
+attributes #2 = { nofree nosync nounwind readnone speculatable willreturn }
+attributes #3 = { nounwind readnone }
+attributes #4 = { nounwind }
 
-!llvm.dbg.cu = !{!2}
-!llvm.module.flags = !{!67, !68, !69, !70}
-!llvm.ident = !{!71}
+!llvm.dbg.cu = !{!19}
+!llvm.module.flags = !{!153, !154, !155, !156}
+!llvm.ident = !{!157}
 
 !0 = !DIGlobalVariableExpression(var: !1, expr: !DIExpression())
-!1 = distinct !DIGlobalVariable(name: "dns_block_suffixes", scope: !2, file: !3, line: 32, type: !37, isLocal: false, isDefinition: true)
-!2 = distinct !DICompileUnit(language: DW_LANG_C99, file: !3, producer: "Alpine clang version 13.0.1", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug, enums: !4, retainedTypes: !14, globals: !22, splitDebugInlining: false, nameTableKind: None)
-!3 = !DIFile(filename: "lpm_test.c", directory: "/root/qname_intercepter/xdp_lpm_test")
-!4 = !{!5}
-!5 = !DICompositeType(tag: DW_TAG_enumeration_type, name: "xdp_action", file: !6, line: 5497, baseType: !7, size: 32, elements: !8)
-!6 = !DIFile(filename: "/usr/include/linux/bpf.h", directory: "")
-!7 = !DIBasicType(name: "unsigned int", size: 32, encoding: DW_ATE_unsigned)
-!8 = !{!9, !10, !11, !12, !13}
-!9 = !DIEnumerator(name: "XDP_ABORTED", value: 0)
-!10 = !DIEnumerator(name: "XDP_DROP", value: 1)
-!11 = !DIEnumerator(name: "XDP_PASS", value: 2)
-!12 = !DIEnumerator(name: "XDP_TX", value: 3)
-!13 = !DIEnumerator(name: "XDP_REDIRECT", value: 4)
-!14 = !{!15, !16, !17, !20}
-!15 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: null, size: 64)
-!16 = !DIBasicType(name: "long int", size: 64, encoding: DW_ATE_signed)
-!17 = !DIDerivedType(tag: DW_TAG_typedef, name: "__u16", file: !18, line: 24, baseType: !19)
-!18 = !DIFile(filename: "/usr/include/asm-generic/int-ll64.h", directory: "")
-!19 = !DIBasicType(name: "unsigned short", size: 16, encoding: DW_ATE_unsigned)
-!20 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !21, size: 64)
-!21 = !DIDerivedType(tag: DW_TAG_typedef, name: "__u32", file: !18, line: 27, baseType: !7)
-!22 = !{!23, !0, !29}
-!23 = !DIGlobalVariableExpression(var: !24, expr: !DIExpression())
-!24 = distinct !DIGlobalVariable(name: "_license", scope: !2, file: !3, line: 106, type: !25, isLocal: false, isDefinition: true)
-!25 = !DICompositeType(tag: DW_TAG_array_type, baseType: !26, size: 32, elements: !27)
-!26 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
-!27 = !{!28}
-!28 = !DISubrange(count: 4)
-!29 = !DIGlobalVariableExpression(var: !30, expr: !DIExpression())
-!30 = distinct !DIGlobalVariable(name: "bpf_map_lookup_elem", scope: !2, file: !31, line: 33, type: !32, isLocal: true, isDefinition: true)
-!31 = !DIFile(filename: "../libbpf/src//build/usr/include/bpf/bpf_helper_defs.h", directory: "/root/qname_intercepter/xdp_lpm_test")
-!32 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !33, size: 64)
-!33 = !DISubroutineType(types: !34)
-!34 = !{!15, !15, !35}
-!35 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !36, size: 64)
-!36 = !DIDerivedType(tag: DW_TAG_const_type, baseType: null)
-!37 = distinct !DICompositeType(tag: DW_TAG_structure_type, file: !3, line: 26, size: 320, elements: !38)
-!38 = !{!39, !45, !56, !57, !62}
-!39 = !DIDerivedType(tag: DW_TAG_member, name: "type", scope: !37, file: !3, line: 27, baseType: !40, size: 64)
-!40 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !41, size: 64)
-!41 = !DICompositeType(tag: DW_TAG_array_type, baseType: !42, size: 352, elements: !43)
-!42 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
-!43 = !{!44}
-!44 = !DISubrange(count: 11)
-!45 = !DIDerivedType(tag: DW_TAG_member, name: "key", scope: !37, file: !3, line: 28, baseType: !46, size: 64, offset: 64)
-!46 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !47, size: 64)
-!47 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "ipv4_lpm_key", file: !3, line: 21, size: 160, elements: !48)
-!48 = !{!49, !50}
-!49 = !DIDerivedType(tag: DW_TAG_member, name: "prefixlen", scope: !47, file: !3, line: 22, baseType: !21, size: 32)
-!50 = !DIDerivedType(tag: DW_TAG_member, name: "data", scope: !47, file: !3, line: 23, baseType: !51, size: 128, offset: 32)
-!51 = !DICompositeType(tag: DW_TAG_array_type, baseType: !52, size: 128, elements: !54)
-!52 = !DIDerivedType(tag: DW_TAG_typedef, name: "__u8", file: !18, line: 21, baseType: !53)
-!53 = !DIBasicType(name: "unsigned char", size: 8, encoding: DW_ATE_unsigned_char)
-!54 = !{!55}
-!55 = !DISubrange(count: 16)
-!56 = !DIDerivedType(tag: DW_TAG_member, name: "value", scope: !37, file: !3, line: 29, baseType: !20, size: 64, offset: 128)
-!57 = !DIDerivedType(tag: DW_TAG_member, name: "map_flags", scope: !37, file: !3, line: 30, baseType: !58, size: 64, offset: 192)
-!58 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !59, size: 64)
-!59 = !DICompositeType(tag: DW_TAG_array_type, baseType: !42, size: 32, elements: !60)
-!60 = !{!61}
-!61 = !DISubrange(count: 1)
-!62 = !DIDerivedType(tag: DW_TAG_member, name: "max_entries", scope: !37, file: !3, line: 31, baseType: !63, size: 64, offset: 256)
+!1 = distinct !DIGlobalVariable(name: "____fmt", scope: !2, file: !3, line: 57, type: !152, isLocal: true, isDefinition: true)
+!2 = distinct !DISubprogram(name: "xdp_patch_ports_func", scope: !3, file: !3, line: 42, type: !4, scopeLine: 43, flags: DIFlagPrototyped | DIFlagAllCallsDescribed, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !19, retainedNodes: !100)
+!3 = !DIFile(filename: "lpm_test.c", directory: "/root/qname_intercepter/ip_filter")
+!4 = !DISubroutineType(types: !5)
+!5 = !{!6, !7}
+!6 = !DIBasicType(name: "int", size: 32, encoding: DW_ATE_signed)
+!7 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !8, size: 64)
+!8 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "xdp_md", file: !9, line: 2856, size: 160, elements: !10)
+!9 = !DIFile(filename: "../headers/linux/bpf.h", directory: "/root/qname_intercepter/ip_filter")
+!10 = !{!11, !15, !16, !17, !18}
+!11 = !DIDerivedType(tag: DW_TAG_member, name: "data", scope: !8, file: !9, line: 2857, baseType: !12, size: 32)
+!12 = !DIDerivedType(tag: DW_TAG_typedef, name: "__u32", file: !13, line: 27, baseType: !14)
+!13 = !DIFile(filename: "/usr/include/asm-generic/int-ll64.h", directory: "")
+!14 = !DIBasicType(name: "unsigned int", size: 32, encoding: DW_ATE_unsigned)
+!15 = !DIDerivedType(tag: DW_TAG_member, name: "data_end", scope: !8, file: !9, line: 2858, baseType: !12, size: 32, offset: 32)
+!16 = !DIDerivedType(tag: DW_TAG_member, name: "data_meta", scope: !8, file: !9, line: 2859, baseType: !12, size: 32, offset: 64)
+!17 = !DIDerivedType(tag: DW_TAG_member, name: "ingress_ifindex", scope: !8, file: !9, line: 2861, baseType: !12, size: 32, offset: 96)
+!18 = !DIDerivedType(tag: DW_TAG_member, name: "rx_queue_index", scope: !8, file: !9, line: 2862, baseType: !12, size: 32, offset: 128)
+!19 = distinct !DICompileUnit(language: DW_LANG_C99, file: !3, producer: "Alpine clang version 13.0.1", isOptimized: true, runtimeVersion: 0, emissionKind: FullDebug, enums: !20, retainedTypes: !28, globals: !33, splitDebugInlining: false, nameTableKind: None)
+!20 = !{!21}
+!21 = !DICompositeType(tag: DW_TAG_enumeration_type, name: "xdp_action", file: !9, line: 2845, baseType: !14, size: 32, elements: !22)
+!22 = !{!23, !24, !25, !26, !27}
+!23 = !DIEnumerator(name: "XDP_ABORTED", value: 0)
+!24 = !DIEnumerator(name: "XDP_DROP", value: 1)
+!25 = !DIEnumerator(name: "XDP_PASS", value: 2)
+!26 = !DIEnumerator(name: "XDP_TX", value: 3)
+!27 = !DIEnumerator(name: "XDP_REDIRECT", value: 4)
+!28 = !{!29, !30, !31, !6}
+!29 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: null, size: 64)
+!30 = !DIBasicType(name: "long int", size: 64, encoding: DW_ATE_signed)
+!31 = !DIDerivedType(tag: DW_TAG_typedef, name: "__u16", file: !13, line: 24, baseType: !32)
+!32 = !DIBasicType(name: "unsigned short", size: 16, encoding: DW_ATE_unsigned)
+!33 = !{!0, !34, !41, !46, !51, !86, !93}
+!34 = !DIGlobalVariableExpression(var: !35, expr: !DIExpression())
+!35 = distinct !DIGlobalVariable(name: "____fmt", scope: !2, file: !3, line: 82, type: !36, isLocal: true, isDefinition: true)
+!36 = !DICompositeType(tag: DW_TAG_array_type, baseType: !37, size: 112, elements: !39)
+!37 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !38)
+!38 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
+!39 = !{!40}
+!40 = !DISubrange(count: 14)
+!41 = !DIGlobalVariableExpression(var: !42, expr: !DIExpression())
+!42 = distinct !DIGlobalVariable(name: "____fmt", scope: !2, file: !3, line: 87, type: !43, isLocal: true, isDefinition: true)
+!43 = !DICompositeType(tag: DW_TAG_array_type, baseType: !37, size: 160, elements: !44)
+!44 = !{!45}
+!45 = !DISubrange(count: 20)
+!46 = !DIGlobalVariableExpression(var: !47, expr: !DIExpression())
+!47 = distinct !DIGlobalVariable(name: "_license", scope: !19, file: !3, line: 102, type: !48, isLocal: false, isDefinition: true)
+!48 = !DICompositeType(tag: DW_TAG_array_type, baseType: !38, size: 32, elements: !49)
+!49 = !{!50}
+!50 = !DISubrange(count: 4)
+!51 = !DIGlobalVariableExpression(var: !52, expr: !DIExpression())
+!52 = distinct !DIGlobalVariable(name: "main_map", scope: !19, file: !3, line: 28, type: !53, isLocal: false, isDefinition: true)
+!53 = distinct !DICompositeType(tag: DW_TAG_structure_type, file: !3, line: 22, size: 192, elements: !54)
+!54 = !{!55, !60, !62, !67}
+!55 = !DIDerivedType(tag: DW_TAG_member, name: "type", scope: !53, file: !3, line: 23, baseType: !56, size: 64)
+!56 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !57, size: 64)
+!57 = !DICompositeType(tag: DW_TAG_array_type, baseType: !6, size: 416, elements: !58)
+!58 = !{!59}
+!59 = !DISubrange(count: 13)
+!60 = !DIDerivedType(tag: DW_TAG_member, name: "key", scope: !53, file: !3, line: 24, baseType: !61, size: 64, offset: 64)
+!61 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !12, size: 64)
+!62 = !DIDerivedType(tag: DW_TAG_member, name: "max_entries", scope: !53, file: !3, line: 26, baseType: !63, size: 64, offset: 128)
 !63 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !64, size: 64)
-!64 = !DICompositeType(tag: DW_TAG_array_type, baseType: !42, size: 8160, elements: !65)
+!64 = !DICompositeType(tag: DW_TAG_array_type, baseType: !6, size: 8160, elements: !65)
 !65 = !{!66}
 !66 = !DISubrange(count: 255)
-!67 = !{i32 7, !"Dwarf Version", i32 4}
-!68 = !{i32 2, !"Debug Info Version", i32 3}
-!69 = !{i32 1, !"wchar_size", i32 4}
-!70 = !{i32 7, !"frame-pointer", i32 2}
-!71 = !{!"Alpine clang version 13.0.1"}
-!72 = distinct !DISubprogram(name: "xdp_patch_ports_func", scope: !3, file: !3, line: 65, type: !73, scopeLine: 66, flags: DIFlagPrototyped | DIFlagAllCallsDescribed, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !2, retainedNodes: !84)
-!73 = !DISubroutineType(types: !74)
-!74 = !{!42, !75}
-!75 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !76, size: 64)
-!76 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "xdp_md", file: !6, line: 5508, size: 192, elements: !77)
-!77 = !{!78, !79, !80, !81, !82, !83}
-!78 = !DIDerivedType(tag: DW_TAG_member, name: "data", scope: !76, file: !6, line: 5509, baseType: !21, size: 32)
-!79 = !DIDerivedType(tag: DW_TAG_member, name: "data_end", scope: !76, file: !6, line: 5510, baseType: !21, size: 32, offset: 32)
-!80 = !DIDerivedType(tag: DW_TAG_member, name: "data_meta", scope: !76, file: !6, line: 5511, baseType: !21, size: 32, offset: 64)
-!81 = !DIDerivedType(tag: DW_TAG_member, name: "ingress_ifindex", scope: !76, file: !6, line: 5513, baseType: !21, size: 32, offset: 96)
-!82 = !DIDerivedType(tag: DW_TAG_member, name: "rx_queue_index", scope: !76, file: !6, line: 5514, baseType: !21, size: 32, offset: 128)
-!83 = !DIDerivedType(tag: DW_TAG_member, name: "egress_ifindex", scope: !76, file: !6, line: 5516, baseType: !21, size: 32, offset: 160)
-!84 = !{!85, !86, !87, !88, !89, !102, !120, !149, !150, !151, !156, !159, !161}
-!85 = !DILocalVariable(name: "ctx", arg: 1, scope: !72, file: !3, line: 65, type: !75)
-!86 = !DILocalVariable(name: "action", scope: !72, file: !3, line: 67, type: !42)
-!87 = !DILocalVariable(name: "eth_type", scope: !72, file: !3, line: 68, type: !42)
-!88 = !DILocalVariable(name: "saddrv4", scope: !72, file: !3, line: 69, type: !21)
-!89 = !DILocalVariable(name: "eth", scope: !72, file: !3, line: 70, type: !90)
-!90 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !91, size: 64)
-!91 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "ethhdr", file: !92, line: 169, size: 112, elements: !93)
-!92 = !DIFile(filename: "/usr/include/linux/if_ether.h", directory: "")
-!93 = !{!94, !98, !99}
-!94 = !DIDerivedType(tag: DW_TAG_member, name: "h_dest", scope: !91, file: !92, line: 170, baseType: !95, size: 48)
-!95 = !DICompositeType(tag: DW_TAG_array_type, baseType: !53, size: 48, elements: !96)
-!96 = !{!97}
-!97 = !DISubrange(count: 6)
-!98 = !DIDerivedType(tag: DW_TAG_member, name: "h_source", scope: !91, file: !92, line: 171, baseType: !95, size: 48, offset: 48)
-!99 = !DIDerivedType(tag: DW_TAG_member, name: "h_proto", scope: !91, file: !92, line: 172, baseType: !100, size: 16, offset: 96)
-!100 = !DIDerivedType(tag: DW_TAG_typedef, name: "__be16", file: !101, line: 25, baseType: !17)
-!101 = !DIFile(filename: "/usr/include/linux/types.h", directory: "")
-!102 = !DILocalVariable(name: "iphdr", scope: !72, file: !3, line: 71, type: !103)
-!103 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !104, size: 64)
-!104 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "iphdr", file: !105, line: 86, size: 160, elements: !106)
-!105 = !DIFile(filename: "/usr/include/linux/ip.h", directory: "")
-!106 = !{!107, !108, !109, !110, !111, !112, !113, !114, !115, !117, !119}
-!107 = !DIDerivedType(tag: DW_TAG_member, name: "ihl", scope: !104, file: !105, line: 88, baseType: !52, size: 4, flags: DIFlagBitField, extraData: i64 0)
-!108 = !DIDerivedType(tag: DW_TAG_member, name: "version", scope: !104, file: !105, line: 89, baseType: !52, size: 4, offset: 4, flags: DIFlagBitField, extraData: i64 0)
-!109 = !DIDerivedType(tag: DW_TAG_member, name: "tos", scope: !104, file: !105, line: 96, baseType: !52, size: 8, offset: 8)
-!110 = !DIDerivedType(tag: DW_TAG_member, name: "tot_len", scope: !104, file: !105, line: 97, baseType: !100, size: 16, offset: 16)
-!111 = !DIDerivedType(tag: DW_TAG_member, name: "id", scope: !104, file: !105, line: 98, baseType: !100, size: 16, offset: 32)
-!112 = !DIDerivedType(tag: DW_TAG_member, name: "frag_off", scope: !104, file: !105, line: 99, baseType: !100, size: 16, offset: 48)
-!113 = !DIDerivedType(tag: DW_TAG_member, name: "ttl", scope: !104, file: !105, line: 100, baseType: !52, size: 8, offset: 64)
-!114 = !DIDerivedType(tag: DW_TAG_member, name: "protocol", scope: !104, file: !105, line: 101, baseType: !52, size: 8, offset: 72)
-!115 = !DIDerivedType(tag: DW_TAG_member, name: "check", scope: !104, file: !105, line: 102, baseType: !116, size: 16, offset: 80)
-!116 = !DIDerivedType(tag: DW_TAG_typedef, name: "__sum16", file: !101, line: 31, baseType: !17)
-!117 = !DIDerivedType(tag: DW_TAG_member, name: "saddr", scope: !104, file: !105, line: 103, baseType: !118, size: 32, offset: 96)
-!118 = !DIDerivedType(tag: DW_TAG_typedef, name: "__be32", file: !101, line: 27, baseType: !21)
-!119 = !DIDerivedType(tag: DW_TAG_member, name: "daddr", scope: !104, file: !105, line: 104, baseType: !118, size: 32, offset: 128)
-!120 = !DILocalVariable(name: "ipv6hdr", scope: !72, file: !3, line: 72, type: !121)
-!121 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !122, size: 64)
-!122 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "ipv6hdr", file: !123, line: 117, size: 320, elements: !124)
-!123 = !DIFile(filename: "/usr/include/linux/ipv6.h", directory: "")
-!124 = !{!125, !126, !127, !131, !132, !133, !134, !148}
-!125 = !DIDerivedType(tag: DW_TAG_member, name: "priority", scope: !122, file: !123, line: 119, baseType: !52, size: 4, flags: DIFlagBitField, extraData: i64 0)
-!126 = !DIDerivedType(tag: DW_TAG_member, name: "version", scope: !122, file: !123, line: 120, baseType: !52, size: 4, offset: 4, flags: DIFlagBitField, extraData: i64 0)
-!127 = !DIDerivedType(tag: DW_TAG_member, name: "flow_lbl", scope: !122, file: !123, line: 127, baseType: !128, size: 24, offset: 8)
-!128 = !DICompositeType(tag: DW_TAG_array_type, baseType: !52, size: 24, elements: !129)
-!129 = !{!130}
-!130 = !DISubrange(count: 3)
-!131 = !DIDerivedType(tag: DW_TAG_member, name: "payload_len", scope: !122, file: !123, line: 129, baseType: !100, size: 16, offset: 32)
-!132 = !DIDerivedType(tag: DW_TAG_member, name: "nexthdr", scope: !122, file: !123, line: 130, baseType: !52, size: 8, offset: 48)
-!133 = !DIDerivedType(tag: DW_TAG_member, name: "hop_limit", scope: !122, file: !123, line: 131, baseType: !52, size: 8, offset: 56)
-!134 = !DIDerivedType(tag: DW_TAG_member, name: "saddr", scope: !122, file: !123, line: 133, baseType: !135, size: 128, offset: 64)
-!135 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "in6_addr", file: !136, line: 33, size: 128, elements: !137)
-!136 = !DIFile(filename: "/usr/include/linux/in6.h", directory: "")
-!137 = !{!138}
-!138 = !DIDerivedType(tag: DW_TAG_member, name: "in6_u", scope: !135, file: !136, line: 40, baseType: !139, size: 128)
-!139 = distinct !DICompositeType(tag: DW_TAG_union_type, scope: !135, file: !136, line: 34, size: 128, elements: !140)
-!140 = !{!141, !142, !146}
-!141 = !DIDerivedType(tag: DW_TAG_member, name: "u6_addr8", scope: !139, file: !136, line: 35, baseType: !51, size: 128)
-!142 = !DIDerivedType(tag: DW_TAG_member, name: "u6_addr16", scope: !139, file: !136, line: 37, baseType: !143, size: 128)
-!143 = !DICompositeType(tag: DW_TAG_array_type, baseType: !100, size: 128, elements: !144)
-!144 = !{!145}
-!145 = !DISubrange(count: 8)
-!146 = !DIDerivedType(tag: DW_TAG_member, name: "u6_addr32", scope: !139, file: !136, line: 38, baseType: !147, size: 128)
-!147 = !DICompositeType(tag: DW_TAG_array_type, baseType: !118, size: 128, elements: !27)
-!148 = !DIDerivedType(tag: DW_TAG_member, name: "daddr", scope: !122, file: !123, line: 134, baseType: !135, size: 128, offset: 192)
-!149 = !DILocalVariable(name: "data_end", scope: !72, file: !3, line: 73, type: !15)
-!150 = !DILocalVariable(name: "data", scope: !72, file: !3, line: 74, type: !15)
-!151 = !DILocalVariable(name: "nh", scope: !72, file: !3, line: 75, type: !152)
-!152 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "hdr_cursor", file: !153, line: 33, size: 64, elements: !154)
-!153 = !DIFile(filename: "./../common/parsing_helpers.h", directory: "/root/qname_intercepter/xdp_lpm_test")
-!154 = !{!155}
-!155 = !DIDerivedType(tag: DW_TAG_member, name: "pos", scope: !152, file: !153, line: 34, baseType: !15, size: 64)
-!156 = !DILocalVariable(name: "key", scope: !157, file: !3, line: 86, type: !47)
-!157 = distinct !DILexicalBlock(scope: !158, file: !3, line: 83, column: 39)
-!158 = distinct !DILexicalBlock(scope: !72, file: !3, line: 83, column: 6)
-!159 = !DILocalVariable(name: "res", scope: !157, file: !3, line: 89, type: !160)
-!160 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !16, size: 64)
-!161 = !DILabel(scope: !72, name: "out", file: !3, line: 102)
-!162 = !DILocation(line: 0, scope: !72)
-!163 = !DILocation(line: 73, column: 38, scope: !72)
-!164 = !{!165, !166, i64 4}
-!165 = !{!"xdp_md", !166, i64 0, !166, i64 4, !166, i64 8, !166, i64 12, !166, i64 16, !166, i64 20}
-!166 = !{!"int", !167, i64 0}
-!167 = !{!"omnipotent char", !168, i64 0}
-!168 = !{!"Simple C/C++ TBAA"}
-!169 = !DILocation(line: 73, column: 27, scope: !72)
-!170 = !DILocation(line: 73, column: 19, scope: !72)
-!171 = !DILocation(line: 74, column: 34, scope: !72)
-!172 = !{!165, !166, i64 0}
-!173 = !DILocation(line: 74, column: 23, scope: !72)
-!174 = !DILocation(line: 74, column: 15, scope: !72)
-!175 = !DILocalVariable(name: "nh", arg: 1, scope: !176, file: !153, line: 124, type: !179)
-!176 = distinct !DISubprogram(name: "parse_ethhdr", scope: !153, file: !153, line: 124, type: !177, scopeLine: 127, flags: DIFlagPrototyped | DIFlagAllCallsDescribed, spFlags: DISPFlagLocalToUnit | DISPFlagDefinition | DISPFlagOptimized, unit: !2, retainedNodes: !181)
-!177 = !DISubroutineType(types: !178)
-!178 = !{!42, !179, !15, !180}
-!179 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !152, size: 64)
-!180 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !90, size: 64)
-!181 = !{!175, !182, !183}
-!182 = !DILocalVariable(name: "data_end", arg: 2, scope: !176, file: !153, line: 125, type: !15)
-!183 = !DILocalVariable(name: "ethhdr", arg: 3, scope: !176, file: !153, line: 126, type: !180)
-!184 = !DILocation(line: 0, scope: !176, inlinedAt: !185)
-!185 = distinct !DILocation(line: 77, column: 13, scope: !72)
-!186 = !DILocalVariable(name: "nh", arg: 1, scope: !187, file: !153, line: 79, type: !179)
-!187 = distinct !DISubprogram(name: "parse_ethhdr_vlan", scope: !153, file: !153, line: 79, type: !188, scopeLine: 83, flags: DIFlagPrototyped | DIFlagAllCallsDescribed, spFlags: DISPFlagLocalToUnit | DISPFlagDefinition | DISPFlagOptimized, unit: !2, retainedNodes: !197)
-!188 = !DISubroutineType(types: !189)
-!189 = !{!42, !179, !15, !180, !190}
-!190 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !191, size: 64)
-!191 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "collect_vlans", file: !153, line: 64, size: 32, elements: !192)
+!67 = !DIDerivedType(tag: DW_TAG_member, name: "values", scope: !53, file: !3, line: 27, baseType: !68, offset: 192)
+!68 = !DICompositeType(tag: DW_TAG_array_type, baseType: !69, elements: !84)
+!69 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !70, size: 64)
+!70 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "inner_map", file: !3, line: 15, size: 256, elements: !71)
+!71 = !{!72, !77, !82, !83}
+!72 = !DIDerivedType(tag: DW_TAG_member, name: "type", scope: !70, file: !3, line: 16, baseType: !73, size: 64)
+!73 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !74, size: 64)
+!74 = !DICompositeType(tag: DW_TAG_array_type, baseType: !6, size: 32, elements: !75)
+!75 = !{!76}
+!76 = !DISubrange(count: 1)
+!77 = !DIDerivedType(tag: DW_TAG_member, name: "max_entries", scope: !70, file: !3, line: 17, baseType: !78, size: 64, offset: 64)
+!78 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !79, size: 64)
+!79 = !DICompositeType(tag: DW_TAG_array_type, baseType: !6, size: 256, elements: !80)
+!80 = !{!81}
+!81 = !DISubrange(count: 8)
+!82 = !DIDerivedType(tag: DW_TAG_member, name: "key", scope: !70, file: !3, line: 18, baseType: !61, size: 64, offset: 128)
+!83 = !DIDerivedType(tag: DW_TAG_member, name: "value", scope: !70, file: !3, line: 19, baseType: !61, size: 64, offset: 192)
+!84 = !{!85}
+!85 = !DISubrange(count: -1)
+!86 = !DIGlobalVariableExpression(var: !87, expr: !DIExpression())
+!87 = distinct !DIGlobalVariable(name: "bpf_trace_printk", scope: !19, file: !88, line: 176, type: !89, isLocal: true, isDefinition: true)
+!88 = !DIFile(filename: "/usr/include/bpf/bpf_helper_defs.h", directory: "")
+!89 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !90, size: 64)
+!90 = !DISubroutineType(types: !91)
+!91 = !{!30, !92, !12, null}
+!92 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !37, size: 64)
+!93 = !DIGlobalVariableExpression(var: !94, expr: !DIExpression())
+!94 = distinct !DIGlobalVariable(name: "bpf_map_lookup_elem", scope: !19, file: !88, line: 55, type: !95, isLocal: true, isDefinition: true)
+!95 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !96, size: 64)
+!96 = !DISubroutineType(types: !97)
+!97 = !{!29, !29, !98}
+!98 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !99, size: 64)
+!99 = !DIDerivedType(tag: DW_TAG_const_type, baseType: null)
+!100 = !{!101, !102, !103, !104, !105, !119, !120, !121, !126, !147, !148, !149, !150, !151}
+!101 = !DILocalVariable(name: "ctx", arg: 1, scope: !2, file: !3, line: 42, type: !7)
+!102 = !DILocalVariable(name: "action", scope: !2, file: !3, line: 44, type: !6)
+!103 = !DILocalVariable(name: "eth_type", scope: !2, file: !3, line: 45, type: !6)
+!104 = !DILocalVariable(name: "saddrv4", scope: !2, file: !3, line: 46, type: !12)
+!105 = !DILocalVariable(name: "eth", scope: !2, file: !3, line: 47, type: !106)
+!106 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !107, size: 64)
+!107 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "ethhdr", file: !108, line: 169, size: 112, elements: !109)
+!108 = !DIFile(filename: "/usr/include/linux/if_ether.h", directory: "")
+!109 = !{!110, !115, !116}
+!110 = !DIDerivedType(tag: DW_TAG_member, name: "h_dest", scope: !107, file: !108, line: 170, baseType: !111, size: 48)
+!111 = !DICompositeType(tag: DW_TAG_array_type, baseType: !112, size: 48, elements: !113)
+!112 = !DIBasicType(name: "unsigned char", size: 8, encoding: DW_ATE_unsigned_char)
+!113 = !{!114}
+!114 = !DISubrange(count: 6)
+!115 = !DIDerivedType(tag: DW_TAG_member, name: "h_source", scope: !107, file: !108, line: 171, baseType: !111, size: 48, offset: 48)
+!116 = !DIDerivedType(tag: DW_TAG_member, name: "h_proto", scope: !107, file: !108, line: 172, baseType: !117, size: 16, offset: 96)
+!117 = !DIDerivedType(tag: DW_TAG_typedef, name: "__be16", file: !118, line: 25, baseType: !31)
+!118 = !DIFile(filename: "/usr/include/linux/types.h", directory: "")
+!119 = !DILocalVariable(name: "data_end", scope: !2, file: !3, line: 48, type: !29)
+!120 = !DILocalVariable(name: "data", scope: !2, file: !3, line: 49, type: !29)
+!121 = !DILocalVariable(name: "nh", scope: !2, file: !3, line: 50, type: !122)
+!122 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "hdr_cursor", file: !123, line: 33, size: 64, elements: !124)
+!123 = !DIFile(filename: "./../common/parsing_helpers.h", directory: "/root/qname_intercepter/ip_filter")
+!124 = !{!125}
+!125 = !DIDerivedType(tag: DW_TAG_member, name: "pos", scope: !122, file: !123, line: 34, baseType: !29, size: 64)
+!126 = !DILocalVariable(name: "iph", scope: !127, file: !3, line: 60, type: !129)
+!127 = distinct !DILexicalBlock(scope: !128, file: !3, line: 59, column: 39)
+!128 = distinct !DILexicalBlock(scope: !2, file: !3, line: 59, column: 6)
+!129 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !130, size: 64)
+!130 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "iphdr", file: !131, line: 86, size: 160, elements: !132)
+!131 = !DIFile(filename: "/usr/include/linux/ip.h", directory: "")
+!132 = !{!133, !135, !136, !137, !138, !139, !140, !141, !142, !144, !146}
+!133 = !DIDerivedType(tag: DW_TAG_member, name: "ihl", scope: !130, file: !131, line: 88, baseType: !134, size: 4, flags: DIFlagBitField, extraData: i64 0)
+!134 = !DIDerivedType(tag: DW_TAG_typedef, name: "__u8", file: !13, line: 21, baseType: !112)
+!135 = !DIDerivedType(tag: DW_TAG_member, name: "version", scope: !130, file: !131, line: 89, baseType: !134, size: 4, offset: 4, flags: DIFlagBitField, extraData: i64 0)
+!136 = !DIDerivedType(tag: DW_TAG_member, name: "tos", scope: !130, file: !131, line: 96, baseType: !134, size: 8, offset: 8)
+!137 = !DIDerivedType(tag: DW_TAG_member, name: "tot_len", scope: !130, file: !131, line: 97, baseType: !117, size: 16, offset: 16)
+!138 = !DIDerivedType(tag: DW_TAG_member, name: "id", scope: !130, file: !131, line: 98, baseType: !117, size: 16, offset: 32)
+!139 = !DIDerivedType(tag: DW_TAG_member, name: "frag_off", scope: !130, file: !131, line: 99, baseType: !117, size: 16, offset: 48)
+!140 = !DIDerivedType(tag: DW_TAG_member, name: "ttl", scope: !130, file: !131, line: 100, baseType: !134, size: 8, offset: 64)
+!141 = !DIDerivedType(tag: DW_TAG_member, name: "protocol", scope: !130, file: !131, line: 101, baseType: !134, size: 8, offset: 72)
+!142 = !DIDerivedType(tag: DW_TAG_member, name: "check", scope: !130, file: !131, line: 102, baseType: !143, size: 16, offset: 80)
+!143 = !DIDerivedType(tag: DW_TAG_typedef, name: "__sum16", file: !118, line: 31, baseType: !31)
+!144 = !DIDerivedType(tag: DW_TAG_member, name: "saddr", scope: !130, file: !131, line: 103, baseType: !145, size: 32, offset: 96)
+!145 = !DIDerivedType(tag: DW_TAG_typedef, name: "__be32", file: !118, line: 27, baseType: !12)
+!146 = !DIDerivedType(tag: DW_TAG_member, name: "daddr", scope: !130, file: !131, line: 104, baseType: !145, size: 32, offset: 128)
+!147 = !DILocalVariable(name: "hdrsize", scope: !127, file: !3, line: 61, type: !6)
+!148 = !DILocalVariable(name: "ttl", scope: !127, file: !3, line: 62, type: !134)
+!149 = !DILocalVariable(name: "res", scope: !127, file: !3, line: 80, type: !69)
+!150 = !DILocalVariable(name: "ttlp", scope: !127, file: !3, line: 84, type: !61)
+!151 = !DILabel(scope: !2, name: "out", file: !3, line: 98)
+!152 = !DICompositeType(tag: DW_TAG_array_type, baseType: !37, size: 48, elements: !113)
+!153 = !{i32 7, !"Dwarf Version", i32 4}
+!154 = !{i32 2, !"Debug Info Version", i32 3}
+!155 = !{i32 1, !"wchar_size", i32 4}
+!156 = !{i32 7, !"frame-pointer", i32 2}
+!157 = !{!"Alpine clang version 13.0.1"}
+!158 = !DILocation(line: 0, scope: !2)
+!159 = !DILocation(line: 46, column: 2, scope: !2)
+!160 = !DILocation(line: 48, column: 38, scope: !2)
+!161 = !{!162, !163, i64 4}
+!162 = !{!"xdp_md", !163, i64 0, !163, i64 4, !163, i64 8, !163, i64 12, !163, i64 16}
+!163 = !{!"int", !164, i64 0}
+!164 = !{!"omnipotent char", !165, i64 0}
+!165 = !{!"Simple C/C++ TBAA"}
+!166 = !DILocation(line: 48, column: 27, scope: !2)
+!167 = !DILocation(line: 48, column: 19, scope: !2)
+!168 = !DILocation(line: 49, column: 34, scope: !2)
+!169 = !{!162, !163, i64 0}
+!170 = !DILocation(line: 49, column: 23, scope: !2)
+!171 = !DILocation(line: 49, column: 15, scope: !2)
+!172 = !DILocalVariable(name: "nh", arg: 1, scope: !173, file: !123, line: 124, type: !176)
+!173 = distinct !DISubprogram(name: "parse_ethhdr", scope: !123, file: !123, line: 124, type: !174, scopeLine: 127, flags: DIFlagPrototyped | DIFlagAllCallsDescribed, spFlags: DISPFlagLocalToUnit | DISPFlagDefinition | DISPFlagOptimized, unit: !19, retainedNodes: !178)
+!174 = !DISubroutineType(types: !175)
+!175 = !{!6, !176, !29, !177}
+!176 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !122, size: 64)
+!177 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !106, size: 64)
+!178 = !{!172, !179, !180}
+!179 = !DILocalVariable(name: "data_end", arg: 2, scope: !173, file: !123, line: 125, type: !29)
+!180 = !DILocalVariable(name: "ethhdr", arg: 3, scope: !173, file: !123, line: 126, type: !177)
+!181 = !DILocation(line: 0, scope: !173, inlinedAt: !182)
+!182 = distinct !DILocation(line: 52, column: 13, scope: !2)
+!183 = !DILocalVariable(name: "nh", arg: 1, scope: !184, file: !123, line: 79, type: !176)
+!184 = distinct !DISubprogram(name: "parse_ethhdr_vlan", scope: !123, file: !123, line: 79, type: !185, scopeLine: 83, flags: DIFlagPrototyped | DIFlagAllCallsDescribed, spFlags: DISPFlagLocalToUnit | DISPFlagDefinition | DISPFlagOptimized, unit: !19, retainedNodes: !194)
+!185 = !DISubroutineType(types: !186)
+!186 = !{!6, !176, !29, !177, !187}
+!187 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !188, size: 64)
+!188 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "collect_vlans", file: !123, line: 64, size: 32, elements: !189)
+!189 = !{!190}
+!190 = !DIDerivedType(tag: DW_TAG_member, name: "id", scope: !188, file: !123, line: 65, baseType: !191, size: 32)
+!191 = !DICompositeType(tag: DW_TAG_array_type, baseType: !31, size: 32, elements: !192)
 !192 = !{!193}
-!193 = !DIDerivedType(tag: DW_TAG_member, name: "id", scope: !191, file: !153, line: 65, baseType: !194, size: 32)
-!194 = !DICompositeType(tag: DW_TAG_array_type, baseType: !17, size: 32, elements: !195)
-!195 = !{!196}
-!196 = !DISubrange(count: 2)
-!197 = !{!186, !198, !199, !200, !201, !202, !203, !209, !210}
-!198 = !DILocalVariable(name: "data_end", arg: 2, scope: !187, file: !153, line: 80, type: !15)
-!199 = !DILocalVariable(name: "ethhdr", arg: 3, scope: !187, file: !153, line: 81, type: !180)
-!200 = !DILocalVariable(name: "vlans", arg: 4, scope: !187, file: !153, line: 82, type: !190)
-!201 = !DILocalVariable(name: "eth", scope: !187, file: !153, line: 84, type: !90)
-!202 = !DILocalVariable(name: "hdrsize", scope: !187, file: !153, line: 85, type: !42)
-!203 = !DILocalVariable(name: "vlh", scope: !187, file: !153, line: 86, type: !204)
-!204 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !205, size: 64)
-!205 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "vlan_hdr", file: !153, line: 42, size: 32, elements: !206)
-!206 = !{!207, !208}
-!207 = !DIDerivedType(tag: DW_TAG_member, name: "h_vlan_TCI", scope: !205, file: !153, line: 43, baseType: !100, size: 16)
-!208 = !DIDerivedType(tag: DW_TAG_member, name: "h_vlan_encapsulated_proto", scope: !205, file: !153, line: 44, baseType: !100, size: 16, offset: 16)
-!209 = !DILocalVariable(name: "h_proto", scope: !187, file: !153, line: 87, type: !17)
-!210 = !DILocalVariable(name: "i", scope: !187, file: !153, line: 88, type: !42)
-!211 = !DILocation(line: 0, scope: !187, inlinedAt: !212)
-!212 = distinct !DILocation(line: 129, column: 9, scope: !176, inlinedAt: !185)
-!213 = !DILocation(line: 93, column: 14, scope: !214, inlinedAt: !212)
-!214 = distinct !DILexicalBlock(scope: !187, file: !153, line: 93, column: 6)
-!215 = !DILocation(line: 93, column: 24, scope: !214, inlinedAt: !212)
-!216 = !DILocation(line: 93, column: 6, scope: !187, inlinedAt: !212)
-!217 = !DILocation(line: 99, column: 17, scope: !187, inlinedAt: !212)
-!218 = !{!219, !219, i64 0}
-!219 = !{!"short", !167, i64 0}
-!220 = !DILocalVariable(name: "h_proto", arg: 1, scope: !221, file: !153, line: 68, type: !17)
-!221 = distinct !DISubprogram(name: "proto_is_vlan", scope: !153, file: !153, line: 68, type: !222, scopeLine: 69, flags: DIFlagPrototyped | DIFlagAllCallsDescribed, spFlags: DISPFlagLocalToUnit | DISPFlagDefinition | DISPFlagOptimized, unit: !2, retainedNodes: !224)
-!222 = !DISubroutineType(types: !223)
-!223 = !{!42, !17}
-!224 = !{!220}
-!225 = !DILocation(line: 0, scope: !221, inlinedAt: !226)
-!226 = distinct !DILocation(line: 106, column: 8, scope: !227, inlinedAt: !212)
-!227 = distinct !DILexicalBlock(scope: !228, file: !153, line: 106, column: 7)
-!228 = distinct !DILexicalBlock(scope: !229, file: !153, line: 105, column: 39)
-!229 = distinct !DILexicalBlock(scope: !230, file: !153, line: 105, column: 2)
-!230 = distinct !DILexicalBlock(scope: !187, file: !153, line: 105, column: 2)
-!231 = !DILocation(line: 70, column: 20, scope: !221, inlinedAt: !226)
-!232 = !DILocation(line: 70, column: 46, scope: !221, inlinedAt: !226)
-!233 = !DILocation(line: 106, column: 7, scope: !228, inlinedAt: !212)
-!234 = !DILocation(line: 109, column: 11, scope: !235, inlinedAt: !212)
-!235 = distinct !DILexicalBlock(scope: !228, file: !153, line: 109, column: 7)
-!236 = !DILocation(line: 109, column: 15, scope: !235, inlinedAt: !212)
-!237 = !DILocation(line: 109, column: 7, scope: !228, inlinedAt: !212)
-!238 = !DILocation(line: 112, column: 18, scope: !228, inlinedAt: !212)
-!239 = !DILocation(line: 83, column: 6, scope: !72)
-!240 = !DILocalVariable(name: "nh", arg: 1, scope: !241, file: !3, line: 34, type: !179)
-!241 = distinct !DISubprogram(name: "parse_iphdr_saddr", scope: !3, file: !3, line: 34, type: !242, scopeLine: 37, flags: DIFlagPrototyped | DIFlagAllCallsDescribed, spFlags: DISPFlagLocalToUnit | DISPFlagDefinition | DISPFlagOptimized, unit: !2, retainedNodes: !245)
-!242 = !DISubroutineType(types: !243)
-!243 = !{!42, !179, !15, !244}
-!244 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !103, size: 64)
-!245 = !{!240, !246, !247, !248, !249}
-!246 = !DILocalVariable(name: "data_end", arg: 2, scope: !241, file: !3, line: 35, type: !15)
-!247 = !DILocalVariable(name: "iphdr", arg: 3, scope: !241, file: !3, line: 36, type: !244)
-!248 = !DILocalVariable(name: "iph", scope: !241, file: !3, line: 38, type: !103)
-!249 = !DILocalVariable(name: "hdrsize", scope: !241, file: !3, line: 39, type: !42)
-!250 = !DILocation(line: 0, scope: !241, inlinedAt: !251)
-!251 = distinct !DILocation(line: 84, column: 13, scope: !157)
-!252 = !DILocation(line: 41, column: 10, scope: !253, inlinedAt: !251)
-!253 = distinct !DILexicalBlock(scope: !241, file: !3, line: 41, column: 6)
-!254 = !DILocation(line: 41, column: 14, scope: !253, inlinedAt: !251)
-!255 = !DILocation(line: 41, column: 6, scope: !241, inlinedAt: !251)
-!256 = !DILocation(line: 44, column: 17, scope: !241, inlinedAt: !251)
-!257 = !DILocation(line: 44, column: 21, scope: !241, inlinedAt: !251)
-!258 = !DILocation(line: 46, column: 13, scope: !259, inlinedAt: !251)
-!259 = distinct !DILexicalBlock(scope: !241, file: !3, line: 46, column: 5)
-!260 = !DILocation(line: 46, column: 5, scope: !241, inlinedAt: !251)
-!261 = !DILocation(line: 50, column: 14, scope: !262, inlinedAt: !251)
-!262 = distinct !DILexicalBlock(scope: !241, file: !3, line: 50, column: 6)
-!263 = !DILocation(line: 50, column: 24, scope: !262, inlinedAt: !251)
-!264 = !DILocation(line: 50, column: 6, scope: !241, inlinedAt: !251)
-!265 = !DILocation(line: 56, column: 14, scope: !241, inlinedAt: !251)
-!266 = !{!267, !166, i64 12}
-!267 = !{!"iphdr", !167, i64 0, !167, i64 0, !167, i64 1, !219, i64 2, !219, i64 4, !219, i64 6, !167, i64 8, !167, i64 9, !219, i64 10, !166, i64 12, !166, i64 16}
-!268 = !DILocation(line: 56, column: 2, scope: !241, inlinedAt: !251)
-!269 = !DILocation(line: 86, column: 3, scope: !157)
-!270 = !DILocation(line: 86, column: 23, scope: !157)
-!271 = !DILocation(line: 87, column: 3, scope: !157)
-!272 = !DILocation(line: 87, column: 21, scope: !157)
-!273 = !{!166, !166, i64 0}
-!274 = !DILocation(line: 0, scope: !157)
-!275 = !DILocation(line: 90, column: 15, scope: !157)
-!276 = !DILocation(line: 91, column: 12, scope: !277)
-!277 = distinct !DILexicalBlock(scope: !157, file: !3, line: 91, column: 12)
-!278 = !DILocation(line: 0, scope: !158)
-!279 = !DILocation(line: 96, column: 2, scope: !158)
-!280 = !DILocation(line: 104, column: 1, scope: !72)
+!193 = !DISubrange(count: 2)
+!194 = !{!183, !195, !196, !197, !198, !199, !200, !206, !207}
+!195 = !DILocalVariable(name: "data_end", arg: 2, scope: !184, file: !123, line: 80, type: !29)
+!196 = !DILocalVariable(name: "ethhdr", arg: 3, scope: !184, file: !123, line: 81, type: !177)
+!197 = !DILocalVariable(name: "vlans", arg: 4, scope: !184, file: !123, line: 82, type: !187)
+!198 = !DILocalVariable(name: "eth", scope: !184, file: !123, line: 84, type: !106)
+!199 = !DILocalVariable(name: "hdrsize", scope: !184, file: !123, line: 85, type: !6)
+!200 = !DILocalVariable(name: "vlh", scope: !184, file: !123, line: 86, type: !201)
+!201 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !202, size: 64)
+!202 = distinct !DICompositeType(tag: DW_TAG_structure_type, name: "vlan_hdr", file: !123, line: 42, size: 32, elements: !203)
+!203 = !{!204, !205}
+!204 = !DIDerivedType(tag: DW_TAG_member, name: "h_vlan_TCI", scope: !202, file: !123, line: 43, baseType: !117, size: 16)
+!205 = !DIDerivedType(tag: DW_TAG_member, name: "h_vlan_encapsulated_proto", scope: !202, file: !123, line: 44, baseType: !117, size: 16, offset: 16)
+!206 = !DILocalVariable(name: "h_proto", scope: !184, file: !123, line: 87, type: !31)
+!207 = !DILocalVariable(name: "i", scope: !184, file: !123, line: 88, type: !6)
+!208 = !DILocation(line: 0, scope: !184, inlinedAt: !209)
+!209 = distinct !DILocation(line: 129, column: 9, scope: !173, inlinedAt: !182)
+!210 = !DILocation(line: 93, column: 14, scope: !211, inlinedAt: !209)
+!211 = distinct !DILexicalBlock(scope: !184, file: !123, line: 93, column: 6)
+!212 = !DILocation(line: 93, column: 24, scope: !211, inlinedAt: !209)
+!213 = !DILocation(line: 93, column: 6, scope: !184, inlinedAt: !209)
+!214 = !DILocation(line: 99, column: 17, scope: !184, inlinedAt: !209)
+!215 = !{!216, !216, i64 0}
+!216 = !{!"short", !164, i64 0}
+!217 = !DILocalVariable(name: "h_proto", arg: 1, scope: !218, file: !123, line: 68, type: !31)
+!218 = distinct !DISubprogram(name: "proto_is_vlan", scope: !123, file: !123, line: 68, type: !219, scopeLine: 69, flags: DIFlagPrototyped | DIFlagAllCallsDescribed, spFlags: DISPFlagLocalToUnit | DISPFlagDefinition | DISPFlagOptimized, unit: !19, retainedNodes: !221)
+!219 = !DISubroutineType(types: !220)
+!220 = !{!6, !31}
+!221 = !{!217}
+!222 = !DILocation(line: 0, scope: !218, inlinedAt: !223)
+!223 = distinct !DILocation(line: 106, column: 8, scope: !224, inlinedAt: !209)
+!224 = distinct !DILexicalBlock(scope: !225, file: !123, line: 106, column: 7)
+!225 = distinct !DILexicalBlock(scope: !226, file: !123, line: 105, column: 39)
+!226 = distinct !DILexicalBlock(scope: !227, file: !123, line: 105, column: 2)
+!227 = distinct !DILexicalBlock(scope: !184, file: !123, line: 105, column: 2)
+!228 = !DILocation(line: 70, column: 20, scope: !218, inlinedAt: !223)
+!229 = !DILocation(line: 70, column: 46, scope: !218, inlinedAt: !223)
+!230 = !DILocation(line: 106, column: 7, scope: !225, inlinedAt: !209)
+!231 = !DILocation(line: 109, column: 11, scope: !232, inlinedAt: !209)
+!232 = distinct !DILexicalBlock(scope: !225, file: !123, line: 109, column: 7)
+!233 = !DILocation(line: 109, column: 15, scope: !232, inlinedAt: !209)
+!234 = !DILocation(line: 109, column: 7, scope: !225, inlinedAt: !209)
+!235 = !DILocation(line: 112, column: 18, scope: !225, inlinedAt: !209)
+!236 = !DILocation(line: 57, column: 2, scope: !237)
+!237 = distinct !DILexicalBlock(scope: !2, file: !3, line: 57, column: 2)
+!238 = !DILocation(line: 59, column: 15, scope: !128)
+!239 = !DILocation(line: 59, column: 6, scope: !2)
+!240 = !DILocation(line: 0, scope: !127)
+!241 = !DILocation(line: 62, column: 3, scope: !127)
+!242 = !DILocation(line: 62, column: 8, scope: !127)
+!243 = !{!164, !164, i64 0}
+!244 = !DILocation(line: 64, column: 11, scope: !245)
+!245 = distinct !DILexicalBlock(scope: !127, file: !3, line: 64, column: 7)
+!246 = !DILocation(line: 64, column: 17, scope: !245)
+!247 = !DILocation(line: 64, column: 15, scope: !245)
+!248 = !DILocation(line: 64, column: 7, scope: !127)
+!249 = !DILocation(line: 67, column: 18, scope: !127)
+!250 = !DILocation(line: 67, column: 22, scope: !127)
+!251 = !DILocation(line: 69, column: 14, scope: !252)
+!252 = distinct !DILexicalBlock(scope: !127, file: !3, line: 69, column: 6)
+!253 = !DILocation(line: 69, column: 6, scope: !127)
+!254 = !DILocation(line: 73, column: 14, scope: !255)
+!255 = distinct !DILexicalBlock(scope: !127, file: !3, line: 73, column: 7)
+!256 = !DILocation(line: 73, column: 24, scope: !255)
+!257 = !DILocation(line: 73, column: 7, scope: !127)
+!258 = !DILocation(line: 77, column: 14, scope: !127)
+!259 = !{!260, !164, i64 8}
+!260 = !{!"iphdr", !164, i64 0, !164, i64 0, !164, i64 1, !216, i64 2, !216, i64 4, !216, i64 6, !164, i64 8, !164, i64 9, !216, i64 10, !163, i64 12, !163, i64 16}
+!261 = !DILocation(line: 77, column: 7, scope: !127)
+!262 = !DILocation(line: 78, column: 18, scope: !127)
+!263 = !{!260, !163, i64 12}
+!264 = !DILocation(line: 78, column: 11, scope: !127)
+!265 = !{!163, !163, i64 0}
+!266 = !DILocation(line: 81, column: 15, scope: !127)
+!267 = !DILocation(line: 82, column: 3, scope: !268)
+!268 = distinct !DILexicalBlock(scope: !127, file: !3, line: 82, column: 3)
+!269 = !DILocation(line: 85, column: 12, scope: !270)
+!270 = distinct !DILexicalBlock(scope: !127, file: !3, line: 85, column: 12)
+!271 = !DILocation(line: 85, column: 12, scope: !127)
+!272 = !DILocation(line: 86, column: 11, scope: !273)
+!273 = distinct !DILexicalBlock(scope: !270, file: !3, line: 85, column: 16)
+!274 = !DILocation(line: 87, column: 4, scope: !275)
+!275 = distinct !DILexicalBlock(scope: !273, file: !3, line: 87, column: 4)
+!276 = !DILocation(line: 88, column: 13, scope: !277)
+!277 = distinct !DILexicalBlock(scope: !273, file: !3, line: 88, column: 7)
+!278 = !DILocation(line: 94, column: 2, scope: !128)
+!279 = !DILocation(line: 100, column: 1, scope: !2)
