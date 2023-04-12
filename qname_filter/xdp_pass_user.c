@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 	}
 
     struct bpf_map *dmap = NULL;
-    if(!(dmap = bpf_object__find_map_by_name(obj, "dns_block_suffixes"))){
+    if(!(dmap = bpf_object__find_map_by_name(obj, "main_map"))){
         fprintf(stderr, "ERR: loading map: %s\n", "dns_block_suffixes");
 		return EXIT_FAIL_BPF;
     }

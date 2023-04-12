@@ -11,13 +11,14 @@ HcFilter::HcFilter(std::string filename)
         in >> ip >> ttl;
         if(ip.find(':') != std::string::npos){
             inet_pton(AF_INET6, ip.c_str(), &v6);
-            ipv6map[v6].push_back(ttl);
+            ipv6map[v6].insert(ttl);
         }else{
             inet_pton(AF_INET, ip.c_str(), &v4);
-            ipv4map[v4].push_back(ttl);
+            ipv4map[v4].insert(ttl);
         }
     }
     this->type = "hc";
+    this->outputToFile("midds/block_ipttl.t");
 }
 
 int HcFilter::filter(std::string ip, int ipVer, std::string queryName, time_t time, uint8_t ttl)
@@ -40,4 +41,23 @@ int HcFilter::filter(std::string ip, int ipVer, std::string queryName, time_t ti
         }
     }
     return F_PASSED;
+}
+
+void HcFilter::outputToFile(std::string filename)
+{
+    std::ofstream out(filename, std::ios::out);
+    auto mit = ipv4map.begin();
+    for(;mit != ipv4map.end();++mit)
+    {
+        char ip[16];
+        inet_ntop(AF_INET, &(mit->first), ip, 16);
+        out << ip;
+        auto sit = mit->second.begin();
+        for(;sit != mit->second.end(); ++sit)
+        {
+            out << " " << (int)(*sit);
+        }
+        out << std::endl;
+    }
+    out.close();
 }

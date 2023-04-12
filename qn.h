@@ -23,7 +23,7 @@ class QnFilter : public Filter
 public:
     QnFilter(std::string filename, int mult=3);
     int filter(std::string ip, int ipVer, std::string queryName, time_t time, uint8_t ttl);
-    
+    void outputToFile(std::string filename);
 };
 
 #endif

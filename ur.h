@@ -17,6 +17,7 @@ class UrFilter : public Filter
 public:
     UrFilter(std::string filename);
     int filter(std::string ip, int ipVer, std::string queryName, time_t time, uint8_t ttl);
+    void outputToFile(std::string filename);
 };
 
 #endif

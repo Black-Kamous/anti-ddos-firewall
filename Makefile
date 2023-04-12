@@ -1,6 +1,7 @@
 CC := g++
 CFLAGS := -g -Wall 
 DIR_OBJ := ./obj
+DIR_MIDD := ./midds
 
 
 addf: $(DIR_OBJ)/qn_train.o $(DIR_OBJ)/hc.o $(DIR_OBJ)/qn.o $(DIR_OBJ)/ur.o $(DIR_OBJ)/core.o $(DIR_OBJ)/main.o plain_lpm.h
@@ -35,4 +36,4 @@ clean:
 .PHONY: test1
 
 test1:
-	./addf -t all.midd -q domains.t -u ip.midd -h ipttl.midd
+	./addf -t $(DIR_MIDD)/all.midd -u $(DIR_MIDD)/ip.midd -h $(DIR_MIDD)/ipttl.midd

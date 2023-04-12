@@ -17,6 +17,7 @@ UrFilter::UrFilter(std::string filename)
         }
     }
     this->type = "ur";
+    this->outputToFile("midds/block_ip.t");
 }
 
 int UrFilter::filter(std::string ip, int ipVer, std::string queryName, time_t time, uint8_t ttl)
@@ -38,4 +39,17 @@ int UrFilter::filter(std::string ip, int ipVer, std::string queryName, time_t ti
             return F_DROPPED;
         }
     }
+}
+
+void UrFilter::outputToFile(std::string filename)
+{
+    std::ofstream out(filename, std::ios::out);
+    auto mit = ipv4map.begin();
+    for(;mit != ipv4map.end();++mit)
+    {
+        char ip[16];
+        inet_ntop(AF_INET, &(mit->first), ip, 16);
+        out << ip << std::endl;
+    }
+    out.close();
 }

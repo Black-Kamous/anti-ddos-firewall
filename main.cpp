@@ -11,10 +11,13 @@
 #include "hc.h"
 #include "ur.h"
 
-std::string filename = "all.midd";
-std::string qfile = "domains.t";
-std::string ufile = "ip.midd";
-std::string hfile = "ipttl.midd";
+#define TIME_INT (47+0.1)
+
+std::string filename = "midds/all.midd";
+std::string qfile = "midds/domains.t";
+bool set_qfile = false;
+std::string ufile = "midds/ip.midd";
+std::string hfile = "midds/ipttl.midd";
 
 double trafThres = 300.0;
 std::deque<Filter *> chosen;
@@ -31,6 +34,7 @@ int main(int argc, char **argv)
             break;
         case 'q':
             qfile = optarg;
+            set_qfile = true;
             break;
         case 'u':
             ufile = optarg;
@@ -43,9 +47,14 @@ int main(int argc, char **argv)
 
     // 初始化测试流量
     loadPackets(filename);
+    splitQnameToFile("midds/.in_domains.t");
 
     // 初始化过滤器
-    Filter *qptr = new QnFilter(qfile);
+    Filter *qptr = NULL;
+    if(set_qfile)
+        qptr = new QnFilter(qfile);
+    else
+        qptr = new QnFilter("midds/.in_domains.t");
     Filter *uptr = new UrFilter(ufile);
     Filter *hptr = new HcFilter(hfile);
     double res;
@@ -58,9 +67,9 @@ int main(int argc, char **argv)
 
     auto singleres = testSingle(singles);
 
-    for (int i = 0; i < singles.size(); ++i)
+    for (unsigned long i = 0; i < singles.size(); ++i)
     {
-        simple_print(singles[i]->type + " " + std::to_string(singleres[i]*131));
+        simple_print(singles[i]->type + " " + std::to_string(singleres[i]*TIME_INT));
     }
 
     // auto minit = std::min_element(singleres.begin(), singleres.end());
@@ -87,12 +96,12 @@ int main(int argc, char **argv)
         //goto deploy;
     }
 
-    simple_print(res*131);
+    simple_print(res*TIME_INT);
     // 方案二
     deployFilter(*qptr);
 
     res = testAllOnDeployed();
-    simple_print(res*131);
+    simple_print(res*TIME_INT);
     if (res < trafThres)
     {
         chosen.clear();

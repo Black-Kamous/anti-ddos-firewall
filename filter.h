@@ -14,6 +14,7 @@ public:
     time_t startTime, endTime;
     std::string type;
     virtual int filter(std::string ip, int ipVer, std::string queryName, time_t time, uint8_t ttl) = 0;
+    virtual void outputToFile(std::string filename) = 0;
     double getPassedRate(){return (nPassed/(nPassed + nDropped + 1.0f));}
     bool sameType(Filter *ano){return (this->type == ano->type);}
 };

@@ -245,19 +245,19 @@ int main(int argc, char **argv)
     switch (opt)
     {
     case 'Q':
-      qname_out = fopen("qname.midd", "w");
+      qname_out = fopen("midds/qname.midd", "w");
       getter = getQname;
       break;
     case 'H':
-      ipttl_out = fopen("ipttl.midd", "w");
+      ipttl_out = fopen("midds/ipttl.midd", "w");
       getter = getIPTTL;
       break;
     case 'U':
-      ip_out = fopen("ip.midd", "w");
+      ip_out = fopen("midds/ip.midd", "w");
       getter = getIP;
       break;
       case 'A':
-      all_out = fopen("all.midd", "w");
+      all_out = fopen("midds/all.midd", "w");
       getter = getAll;
       break;
     }

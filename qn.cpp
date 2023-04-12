@@ -5,8 +5,10 @@ QnFilter::QnFilter(std::string filename, int mult){
     lpm = new PlainLPM<struct qname, uint32_t>();
     std::vector<std::string> res = qn_train(filename, mult);
     std::string qname;
+    std::ofstream out("midds/block_domains.t", std::ios::out);
     for(auto rit = res.begin(); rit != res.end(); rit++) {
         qname = *rit;
+        out << qname << std::endl;
         std::reverse(qname.begin(), qname.end());
         struct qname qn = {.n = {0}};
         strncpy(qn.n, qname.c_str(), QNAME_MAX);
@@ -27,4 +29,9 @@ int QnFilter::filter(std::string ip, int ipVer, std::string queryName, time_t ti
         nDropped++;
         return F_DROPPED;
     }
+}
+
+void QnFilter::outputToFile(std::string filename)
+{
+    return;
 }

@@ -3,14 +3,33 @@
 void loadPackets(std::string filename)
 {
     std::ifstream in(filename, std::ios::in);
-    simplePacket simpack;
+    SimplePacket simpack;
     int ttl;
     
     while(in.good()){
         in >> simpack.ip >> ttl >> simpack.qname >> simpack.time;
         simpack.ttl = ttl;
-        packets.push_back(simpack);
+        if(simpack.ttl)
+        {
+            packets.push_back(simpack);
+        }
+        ttl = 0;
     }
+
+    in.close();
+    std::cout << "Loaded " + std::to_string(packets.size()) + " packets" << std::endl;
+}
+
+void splitQnameToFile(std::string filename)
+{
+    std::ofstream out(filename, std::ios::out);
+    auto pit = packets.begin();
+    for(;pit != packets.end();++pit)
+    {
+        out << pit->qname << std::endl;
+    }
+
+    out.close();
 }
 
 int deployFilter(Filter &f)
@@ -72,7 +91,7 @@ double testAllOnDeployed()
     return passedRate;
 }
 
-int testDeployed(simplePacket t)
+int testDeployed(SimplePacket t)
 {
     int ipVer = 4;
     if(t.ip.find(':') != std::string::npos){
@@ -116,7 +135,7 @@ std::vector<double> testSingle(std::vector<Filter*> test)
         }
     }
     std::vector<double> val(test.size());
-    for(int cnt = 0; cnt < test.size(); ++cnt)
+    for(unsigned long cnt = 0; cnt < test.size(); ++cnt)
     {
         val[cnt] = (passed[cnt])/(et-st+0.1);
     }

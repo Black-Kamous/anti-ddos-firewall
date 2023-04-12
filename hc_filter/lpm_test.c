@@ -59,7 +59,7 @@ int xdp_patch_ports_func(struct xdp_md *ctx)
 	if (eth_type == bpf_htons(ETH_P_IP)) {
 		struct iphdr *iph = nh.pos;
 		int hdrsize;
-		__u8 ttl = 255;
+		__u32 ttl = 255;
 
 		if (iph + 1 > data_end)
 			return XDP_ABORTED;
@@ -79,13 +79,17 @@ int xdp_patch_ports_func(struct xdp_md *ctx)
 
         struct inner_map* res = NULL; 
         res = bpf_map_lookup_elem(&main_map, &saddrv4);
+		bpf_printk("sipaddr %x\n", saddrv4);
 		bpf_printk("inner map %d\n", res);
 
 		__u32 *ttlp;
         if(res){
 			ttlp = bpf_map_lookup_elem(res, &ttl);
-			bpf_printk("ttl %d, %ld in map\n", (int)ttl, (long)ttlp);
-			if(!ttlp && (*ttlp) == 1){
+			
+			if(ttlp){
+				bpf_printk("ttl %d, %d in map\n", ttl, *ttlp);
+			}
+			if(ttlp && (*ttlp) == 1){
 				action = XDP_PASS;
 				goto out;
 			}

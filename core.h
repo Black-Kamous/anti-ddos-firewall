@@ -16,11 +16,11 @@
 // 捕包结果 simpack = <ip ttl qname ...>
 
 typedef struct simpack{
-    std::string ip;
-    uint8_t ttl;
+    std::string ip = "";
+    uint8_t ttl = 0;
     std::string qname;
     time_t time;
-}simplePacket;
+}SimplePacket;
 
 // 训练集 -> FQ(及时) UR, HC(提前定期)
 // 构造时读取训练完成结果？
@@ -32,11 +32,13 @@ typedef struct simpack{
 //
 
 static std::deque<Filter*> deployed;
-static std::vector<simplePacket> packets;
+static std::vector<SimplePacket> packets;
 
 // 装载运行simpack
 
 void loadPackets(std::string filename);
+
+void splitQnameToFile(std::string filename);
 
 // 管理filter序列（有序）
 
@@ -49,7 +51,7 @@ double testAllOnDeployed();
 
 // 函数 测试filter序列（单个simpack）
 
-int testDeployed(simplePacket t);
+int testDeployed(SimplePacket t);
 
 // 单独测试一系列filter
 
