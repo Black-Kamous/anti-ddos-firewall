@@ -122,39 +122,23 @@ int main(int argc, char **argv)
 	int dmap_fd = bpf_map__fd(dmap);
 
 	FILE* fp;
-	char fname[256] = "../hclist.t";
+	char fname[256] = "../midds/block_ip.t";
 
 	fp = fopen(fname, "r");
-
-	int ttl = 0;
 
 	char buf[PREF_MAXLEN] = {0};
 	__u32 len;
 
-	__u8 mval = 1;
+	__u32 mval = 1;
 	while (fgets(buf, PREF_MAXLEN, fp) != NULL)
 	{
-		int inner_map_fd = bpf_map_create(
-			BPF_MAP_TYPE_HASH, "inner_map",
-			sizeof(__u8), sizeof(__u8), 8, 0);
-		if (inner_map_fd < 0)
-			return -1;
 		len = strlen(buf);
 		buf[len] = '\0'; /*去掉换行符*/
-		for (int i = len - 1; i >= 0; --i)
-		{
-			if (buf[i] == ' ')
-			{
-				ttl = atoi(buf + i + 1);
-				buf[i] = '\0';
-				bpf_map_update_elem(inner_map_fd, &ttl, &mval, BPF_NOEXIST);
-			}
-		}
+		
 		__u32 dst;
 		inet_pton(AF_INET, buf, &dst);
 		dst = htonl(dst);
-		bpf_map_update_elem(dmap_fd, &dst, &inner_map_fd, BPF_ANY);
-		close(inner_map_fd);
+		bpf_map_update_elem(dmap_fd, &dst, &mval, BPF_ANY);
 		memset(buf, 0, PREF_MAXLEN);
 	}
 

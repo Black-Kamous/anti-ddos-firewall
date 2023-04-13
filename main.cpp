@@ -1,6 +1,7 @@
 // include
 #include <iostream>
 #include <unistd.h>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -18,6 +19,10 @@ std::string qfile = "midds/domains.t";
 bool set_qfile = false;
 std::string ufile = "midds/ip.midd";
 std::string hfile = "midds/ipttl.midd";
+
+std::string loader = "./myloader";
+std::string ifarg = " --iface=eth0";
+std::string loadargs = " ";
 
 double trafThres = 300.0;
 std::deque<Filter *> chosen;
@@ -72,13 +77,25 @@ int main(int argc, char **argv)
         simple_print(singles[i]->type + " " + std::to_string(singleres[i]*TIME_INT));
     }
 
-    // auto minit = std::min_element(singleres.begin(), singleres.end());
-    // if (*minit < trafThres)
-    // {
-    //     chosen.clear();
-    //     chosen.emplace_back(singles[minit - singleres.begin()]);
-    //     goto deploy;
-    // }
+    auto minit = std::min_element(singleres.begin(), singleres.end());
+    if (*minit < trafThres)
+    {
+        chosen.clear();
+        chosen.emplace_back(singles[minit - singleres.begin()]);
+        
+        if(chosen[0]->type == "qn")
+        {
+            loadargs += " --qn=xdp_pass_kern.o --qfile=midds/block_domains.t";
+        }else if(chosen[0]->type == "ur")
+        {
+            loadargs += " --ur=xdp_pass_kern.o --ufile=midds/block_ip.t";
+        }else if(chosen[0]->type == "hc")
+        {
+            loadargs += " --hc=xdp_pass_kern.o --hfile=midds/block_ipttl.t";
+        }
+
+        goto deploy;
+    }
 
     // 如果效果不好，联合测试
     clearFilter();
@@ -93,6 +110,8 @@ int main(int argc, char **argv)
         chosen.clear();
         chosen.emplace_back(uptr);
         chosen.emplace_back(hptr);
+        loadargs += " --ur=xdp_pass_kern.o --ufile=midds/block_ip.t";
+        loadargs += " --hc=xdp_pass_kern.o --hfile=midds/block_ipttl.t";
         //goto deploy;
     }
 
@@ -108,15 +127,21 @@ int main(int argc, char **argv)
         chosen.emplace_back(uptr);
         chosen.emplace_back(hptr);
         chosen.emplace_back(qptr);
+        loadargs += " --ur=xdp_pass_kern.o --ufile=midds/block_ip.t";
+        loadargs += " --hc=xdp_pass_kern.o --hfile=midds/block_ipttl.t";
+        loadargs += " --qn=xdp_pass_kern.o --qfile=midds/block_domains.t";
         //goto deploy;
     }
 
 
     // 部署过滤器
 deploy:
+    std::cout << "deployed filters:" << std::endl;
     for (auto cit = chosen.begin(); cit != chosen.end(); ++cit)
     {
         std::cout << (*cit)->type << std::endl;
     }
+    std::system((loader+ifarg+" --unload-all").c_str());
+    std::system((loader+ifarg+loadargs).c_str());
     return 0;
 }
