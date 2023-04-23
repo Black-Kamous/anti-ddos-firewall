@@ -88,10 +88,10 @@ int main(int argc, char **argv)
             loadargs += " --qn=xdp_pass_kern.o --qfile=midds/block_domains.t";
         }else if(chosen[0]->type == "ur")
         {
-            loadargs += " --ur=xdp_pass_kern.o --ufile=midds/block_ip.t";
+            loadargs += " --ur=urf.o --ufile=midds/block_ip.t";
         }else if(chosen[0]->type == "hc")
         {
-            loadargs += " --hc=xdp_pass_kern.o --hfile=midds/block_ipttl.t";
+            loadargs += " --hc=lpm_test.o --hfile=midds/block_ipttl.t";
         }
 
         goto deploy;
@@ -110,8 +110,8 @@ int main(int argc, char **argv)
         chosen.clear();
         chosen.emplace_back(uptr);
         chosen.emplace_back(hptr);
-        loadargs += " --ur=xdp_pass_kern.o --ufile=midds/block_ip.t";
-        loadargs += " --hc=xdp_pass_kern.o --hfile=midds/block_ipttl.t";
+        loadargs += " --ur=urf.o --ufile=midds/block_ip.t";
+        loadargs += " --hc=lpm_test.o --hfile=midds/block_ipttl.t";
         //goto deploy;
     }
 
@@ -127,8 +127,8 @@ int main(int argc, char **argv)
         chosen.emplace_back(uptr);
         chosen.emplace_back(hptr);
         chosen.emplace_back(qptr);
-        loadargs += " --ur=xdp_pass_kern.o --ufile=midds/block_ip.t";
-        loadargs += " --hc=xdp_pass_kern.o --hfile=midds/block_ipttl.t";
+        loadargs += " --ur=urf.o --ufile=midds/block_ip.t";
+        loadargs += " --hc=lpm_test.o --hfile=midds/block_ipttl.t";
         loadargs += " --qn=xdp_pass_kern.o --qfile=midds/block_domains.t";
         //goto deploy;
     }
