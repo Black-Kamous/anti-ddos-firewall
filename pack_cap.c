@@ -236,11 +236,12 @@ int main(int argc, char **argv)
   char errBuf[PCAP_ERRBUF_SIZE];
   pcap_if_t *it;
   int r;
+  char filename[256] = "";
 
   void (*getter)(u_char *, const struct pcap_pkthdr *, const u_char *) = NULL;
 
   char opt;
-  while ((opt = getopt(argc, argv, "AQHU")) != -1)
+  while ((opt = getopt(argc, argv, "AQHUf:")) != -1)
   {
     switch (opt)
     {
@@ -256,9 +257,12 @@ int main(int argc, char **argv)
       ip_out = fopen("midds/ip.midd", "w");
       getter = getIP;
       break;
-      case 'A':
+    case 'A':
       all_out = fopen("midds/all.midd", "w");
       getter = getAll;
+      break;
+    case 'f':
+      strncpy(filename, optarg, 256);
       break;
     }
   }
@@ -283,28 +287,34 @@ int main(int argc, char **argv)
   if (!it)
     return 0;
 
+  pcap_t *device = NULL;
   /* open a device, wait until a packet arrives */
   // pcap_t * device = pcap_open_offline("test.pcap",errBuf);     //读取本地文件作为网络包数据
-  pcap_t *device = pcap_open_live(it->name, 65535, 0, 5000, errBuf);
+  if(filename[0] == '\0'){
+    device = pcap_open_live(it->name, 65535, 0, 5000, errBuf);
 
-  if (!device)
-  {
-    printf("error: pcap_open_live(): %s\n", errBuf);
-    exit(1);
+    if (!device)
+    {
+      printf("error: pcap_open_live(): %s\n", errBuf);
+      exit(1);
+    }
+
+    printf("Capturing on dev %s\n", it->name);
+
+    /* construct a filter */
+    struct bpf_program filter;
+    pcap_compile(device, &filter, "udp port 33340", 0, 0);
+    pcap_setfilter(device, &filter);
+
+    
+  }else{
+    device = pcap_open_offline(filename,errBuf);
   }
-
-  printf("Capturing on dev %s\n", it->name);
-
-  /* construct a filter */
-  struct bpf_program filter;
-  pcap_compile(device, &filter, "udp port 33340", 0, 0);
-  pcap_setfilter(device, &filter);
 
   /* wait loop forever */
   int id = 0;
   pcap_loop(device, -3, getter, (u_char *)&id);
 
   pcap_close(device);
-
   return 0;
 }

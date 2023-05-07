@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <ctime>
 
 #include "core.h"
 #include "filter.h"
@@ -30,7 +31,7 @@ std::deque<Filter *> chosen;
 int main(int argc, char **argv)
 {
     char opt;
-    while ((opt = getopt(argc, argv, "t:q:u:h:")) != -1)
+    while ((opt = getopt(argc, argv, "t:q:u:h:s:")) != -1)
     {
         switch (opt)
         {
@@ -47,9 +48,13 @@ int main(int argc, char **argv)
         case 'h':
             hfile = optarg;
             break;
+        case 's':
+            trafThres = atoi(optarg);
+            break;
         }
     }
 
+    clock_t start = clock();
     // 初始化测试流量
     loadPackets(filename);
     splitQnameToFile("midds/.in_domains.t");
@@ -70,11 +75,13 @@ int main(int argc, char **argv)
     singles.push_back(uptr);
     singles.push_back(hptr);
 
+    clock_t loaded = clock();
+
     auto singleres = testSingle(singles);
 
     for (unsigned long i = 0; i < singles.size(); ++i)
     {
-        simple_print(singles[i]->type + " " + std::to_string(singleres[i]*TIME_INT));
+        simple_print(singles[i]->type + " " + std::to_string(singleres[i]));
     }
 
     auto minit = std::min_element(singleres.begin(), singleres.end());
@@ -85,13 +92,13 @@ int main(int argc, char **argv)
         
         if(chosen[0]->type == "qn")
         {
-            loadargs += " --qn=xdp_pass_kern.o --qfile=midds/block_domains.t";
+            loadargs += " --qn=qn.o --qfile=midds/block_domains.t";
         }else if(chosen[0]->type == "ur")
         {
-            loadargs += " --ur=urf.o --ufile=midds/block_ip.t";
+            loadargs += " --ur=ur.o --ufile=midds/block_ip.t";
         }else if(chosen[0]->type == "hc")
         {
-            loadargs += " --hc=lpm_test.o --hfile=midds/block_ipttl.t";
+            loadargs += " --hc=hc.o --hfile=midds/block_ipttl.t";
         }
 
         goto deploy;
@@ -110,33 +117,56 @@ int main(int argc, char **argv)
         chosen.clear();
         chosen.emplace_back(uptr);
         chosen.emplace_back(hptr);
-        loadargs += " --ur=urf.o --ufile=midds/block_ip.t";
-        loadargs += " --hc=lpm_test.o --hfile=midds/block_ipttl.t";
-        //goto deploy;
+        loadargs += " --ur=ur.o --ufile=midds/block_ip.t";
+        loadargs += " --hc=hc.o --hfile=midds/block_ipttl.t";
+        goto deploy;
     }
 
-    simple_print(res*TIME_INT);
+    simple_print(res);
     // 方案二
+    clearFilter();
     deployFilter(*qptr);
+    deployFilter(*uptr);
 
     res = testAllOnDeployed();
-    simple_print(res*TIME_INT);
+    simple_print(res);
+    if (res < trafThres)
+    {
+        chosen.clear();
+        chosen.emplace_back(uptr);
+        chosen.emplace_back(qptr);
+        loadargs += " --ur=ur.o --ufile=midds/block_ip.t";
+        loadargs += " --qn=qn.o --qfile=midds/block_domains.t";
+        goto deploy;
+    }
+
+    //方案三
+    deployFilter(*hptr);
+
+    res = testAllOnDeployed();
+    simple_print(res);
     if (res < trafThres)
     {
         chosen.clear();
         chosen.emplace_back(uptr);
         chosen.emplace_back(hptr);
         chosen.emplace_back(qptr);
-        loadargs += " --ur=urf.o --ufile=midds/block_ip.t";
-        loadargs += " --hc=lpm_test.o --hfile=midds/block_ipttl.t";
-        loadargs += " --qn=xdp_pass_kern.o --qfile=midds/block_domains.t";
-        //goto deploy;
+        loadargs += " --ur=ur.o --ufile=midds/block_ip.t";
+        loadargs += " --hc=hc.o --hfile=midds/block_ipttl.t";
+        loadargs += " --qn=qn.o --qfile=midds/block_domains.t";
+        goto deploy;
     }
 
 
     // 部署过滤器
 deploy:
-    std::cout << "deployed filters:" << std::endl;
+    clock_t choosed = clock();
+
+    simple_print("loading time: " + std::to_string(loaded-start) + "ms");
+    simple_print("choosing time: " + std::to_string(choosed-loaded) + "ms");
+    simple_print("total time: " + std::to_string(choosed-start) + "ms");
+
+    simple_print("\ndeployed filters:");
     for (auto cit = chosen.begin(); cit != chosen.end(); ++cit)
     {
         std::cout << (*cit)->type << std::endl;
