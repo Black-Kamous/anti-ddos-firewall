@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
 
-XDP_TARGETS := lpm_test
+XDP_TARGETS := raw_hc
 USER_TARGETS := user_test
 
 LLC ?= llc

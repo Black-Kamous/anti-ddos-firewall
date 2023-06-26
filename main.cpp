@@ -16,7 +16,7 @@
 #define TIME_INT (47+0.1)
 
 std::string filename = "midds/all.midd";
-std::string qfile = "midds/domains.t";
+std::string qfile = "midds/qname.midd";
 bool set_qfile = false;
 std::string ufile = "midds/ip.midd";
 std::string hfile = "midds/ipttl.midd";
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
             loadargs += " --hc=hc.o --hfile=midds/block_ipttl.t";
         }
 
-        goto deploy;
+        //goto deploy;
     }
 
     // 如果效果不好，联合测试
@@ -112,6 +112,7 @@ int main(int argc, char **argv)
     deployFilter(*hptr);
 
     res = testAllOnDeployed();
+    simple_print("scheme1:"+ std::to_string(res));
     if (res < trafThres)
     {
         chosen.clear();
@@ -119,17 +120,17 @@ int main(int argc, char **argv)
         chosen.emplace_back(hptr);
         loadargs += " --ur=ur.o --ufile=midds/block_ip.t";
         loadargs += " --hc=hc.o --hfile=midds/block_ipttl.t";
-        goto deploy;
+        //goto deploy;
     }
 
-    simple_print(res);
+    
     // 方案二
     clearFilter();
     deployFilter(*qptr);
     deployFilter(*uptr);
 
     res = testAllOnDeployed();
-    simple_print(res);
+    simple_print("scheme2:"+ std::to_string(res));
     if (res < trafThres)
     {
         chosen.clear();
@@ -137,14 +138,14 @@ int main(int argc, char **argv)
         chosen.emplace_back(qptr);
         loadargs += " --ur=ur.o --ufile=midds/block_ip.t";
         loadargs += " --qn=qn.o --qfile=midds/block_domains.t";
-        goto deploy;
+        //goto deploy;
     }
 
     //方案三
     deployFilter(*hptr);
 
     res = testAllOnDeployed();
-    simple_print(res);
+    simple_print("scheme3:"+ std::to_string(res));
     if (res < trafThres)
     {
         chosen.clear();
@@ -154,7 +155,7 @@ int main(int argc, char **argv)
         loadargs += " --ur=ur.o --ufile=midds/block_ip.t";
         loadargs += " --hc=hc.o --hfile=midds/block_ipttl.t";
         loadargs += " --qn=qn.o --qfile=midds/block_domains.t";
-        goto deploy;
+        //goto deploy;
     }
 
 

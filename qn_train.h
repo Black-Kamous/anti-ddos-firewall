@@ -7,6 +7,7 @@
 #include <set>
 #include <vector>
 #include <fstream>
+#include <cstring>
 
 #define simple_print(p) std::cout<<(p)<<std::endl
 

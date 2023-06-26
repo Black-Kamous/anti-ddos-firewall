@@ -1,4 +1,5 @@
 #include "qn_train.h"
+#include <cstring>
 
 static std::set<std::string> tldset = {"com", "net", "org", "gov", "edu", "cn", "uk", "us", "ru"};
 

@@ -277,7 +277,7 @@ int main(int argc, char **argv)
 
   while (it)
   {
-    if (!strcmp(it->name, "eth0"))
+    if (!strcmp(it->name, "lo"))
     {
       break;
     }
@@ -309,6 +309,7 @@ int main(int argc, char **argv)
     
   }else{
     device = pcap_open_offline(filename,errBuf);
+    printf("reading from %s\n", filename);
   }
 
   /* wait loop forever */
