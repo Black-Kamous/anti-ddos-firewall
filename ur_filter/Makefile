@@ -3,8 +3,8 @@
 XDP_TARGETS := urf
 USER_TARGETS := user_test
 
-LLC ?= llc
-CLANG ?= clang
+LLC ?= llc-14
+CLANG ?= clang-14
 CC := gcc
 
 LIBBPF_DIR = ../../multi-filters/lib/libbpf/src/

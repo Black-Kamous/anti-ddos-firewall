@@ -3,8 +3,8 @@
 XDP_TARGETS := xdp_pass_kern
 USER_TARGETS := xdp_pass_user
 
-LLC ?= llc
-CLANG ?= clang
+LLC ?= llc-14
+CLANG ?= clang-14
 CC := gcc
 
 LIBBPF_DIR = ../libbpf/src/

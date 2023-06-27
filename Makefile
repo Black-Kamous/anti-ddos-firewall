@@ -28,6 +28,13 @@ $(DIR_OBJ)/ur.o: ur.cpp ur.h
 cap: pack_cap.c
 	gcc -g -o pack_cap pack_cap.c -lpcap
 
+.PHONY: filters
+
+filters:
+	make -C qname_filter
+	make -C ur_filter
+	make -C hc_filter
+
 .PHONY: clean
 
 clean:
