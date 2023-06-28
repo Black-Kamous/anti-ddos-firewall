@@ -3,6 +3,7 @@ CFLAGS := -g -Wall
 DIR_OBJ := ./obj
 DIR_MIDD := ./midds
 
+all: addf filters
 
 addf: $(DIR_OBJ)/qn_train.o $(DIR_OBJ)/hc.o $(DIR_OBJ)/qn.o $(DIR_OBJ)/ur.o $(DIR_OBJ)/core.o $(DIR_OBJ)/main.o plain_lpm.h
 	$(CC) $(CFLAGS) -o $@ $(patsubst %.h, , $^)
@@ -34,6 +35,9 @@ filters:
 	make -C qname_filter
 	make -C ur_filter
 	make -C hc_filter
+	cp qname_filter/qn.o ../multi-filters
+	cp ur_filter/ur.o ../multi-filters
+	cp hc_filter/raw_hc.o ../multi-filters
 
 .PHONY: clean
 

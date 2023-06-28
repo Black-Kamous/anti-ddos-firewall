@@ -9,12 +9,7 @@
 // The parsing helper functions from the packet01 lesson have moved here
 #include "../common/parsing_helpers.h"
 #include "../common/rewrite_helpers.h"
-#define bpf_printk(fmt, ...)				\
-({                                                      \
-        char ____fmt[] = fmt;                           \
-        bpf_trace_printk(____fmt, sizeof(____fmt),      \
-                         ##__VA_ARGS__);                \
-})
+
 
 #define DM_MAXLEN 64
 #define SUF_MAXLEN 64
@@ -152,14 +147,17 @@ int xdp_patch_ports_func(struct xdp_md *ctx)
 			if(qlk.prefixlen == 0){
 				return XDP_ABORTED;
 			}
+			bpf_printk("rev %s\n", qlk.rev_suf);
 			struct qname_lpm_key* tval = NULL;
 			if(!(tval = bpf_map_lookup_elem(&main_map, &qlk))){
 				action = XDP_PASS;
 				goto out;
 			}else{
+				bpf_printk("k index %d\n", tval->prefixlen);
 				while(qlen > 0){
 					if(qlk.rev_suf[qlen] != '\0' && tval->rev_suf[qlen] != '\0'){
 						if(qlk.rev_suf[qlen] != tval->rev_suf[qlen]){
+							bpf_printk("matched len %d\n", qlen);
 							action = XDP_PASS;
 							goto out;
 						}
