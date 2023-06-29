@@ -163,9 +163,9 @@ int main(int argc, char **argv)
 deploy:
     clock_t choosed = clock();
 
-    simple_print("loading time: " + std::to_string(loaded-start) + "ms");
-    simple_print("choosing time: " + std::to_string(choosed-loaded) + "ms");
-    simple_print("total time: " + std::to_string(choosed-start) + "ms");
+    simple_print("loading time: " + std::to_string(loaded-start) + "us");
+    simple_print("choosing time: " + std::to_string(choosed-loaded) + "us");
+    simple_print("total time: " + std::to_string(choosed-start) + "us");
 
     simple_print("\ndeployed filters:");
     for (auto cit = chosen.begin(); cit != chosen.end(); ++cit)

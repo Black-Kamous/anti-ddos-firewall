@@ -48,14 +48,7 @@ int deployFilter(Filter &f)
     }
     else if (f.type == "ur")
     {
-        for (auto dit = deployed.begin(); dit != deployed.end(); dit++)
-        {
-            if ((*dit)->type == "hc")
-            {
-                deployed.emplace(dit, &f);
-                break;
-            }
-        }
+        deployed.push_front(&f);
     }
     else if (f.type == "hc")
     {
@@ -87,7 +80,7 @@ double testAllOnDeployed()
             passed++;
         }
     }
-    double passedRate = (passed)/(et-st+0.1);
+    double passedRate = (passed)/(et-st);
     return passedRate;
 }
 
@@ -137,7 +130,7 @@ std::vector<double> testSingle(std::vector<Filter*> test)
     std::vector<double> val(test.size());
     for(unsigned long cnt = 0; cnt < test.size(); ++cnt)
     {
-        val[cnt] = (passed[cnt])/(et-st+0.1);
+        val[cnt] = (passed[cnt])/(et-st);
     }
     return val;
 }

@@ -3,7 +3,7 @@ CFLAGS := -g -Wall
 DIR_OBJ := ./obj
 DIR_MIDD := ./midds
 
-all: addf
+all: addf cap
 
 addf: $(DIR_OBJ)/qn_train.o $(DIR_OBJ)/hc.o $(DIR_OBJ)/qn.o $(DIR_OBJ)/ur.o $(DIR_OBJ)/core.o $(DIR_OBJ)/main.o plain_lpm.h
 	$(CC) $(CFLAGS) -o $@ $(patsubst %.h, , $^)

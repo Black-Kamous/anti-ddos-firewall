@@ -17,7 +17,7 @@
 
 typedef struct simpack{
     std::string ip = "";
-    uint8_t ttl = 0;
+    int ttl = 0;
     std::string qname;
     time_t time;
 }SimplePacket;

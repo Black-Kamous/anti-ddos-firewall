@@ -1,1 +1,1 @@
-qname.cn
+qname.com

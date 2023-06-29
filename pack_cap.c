@@ -277,7 +277,7 @@ int main(int argc, char **argv)
 
   while (it)
   {
-    if (!strcmp(it->name, "lo"))
+    if (!strcmp(it->name, "eth0"))
     {
       break;
     }
@@ -303,7 +303,7 @@ int main(int argc, char **argv)
 
     /* construct a filter */
     struct bpf_program filter;
-    pcap_compile(device, &filter, "udp port 33340", 0, 0);
+    pcap_compile(device, &filter, "udp port 53", 0, 0);
     pcap_setfilter(device, &filter);
 
     
