@@ -28,10 +28,32 @@ std::string loadargs = " ";
 double trafThres = 300.0;
 std::deque<Filter *> chosen;
 
+void print_help()
+{
+    printf("\033[32m");
+    printf("- anti ddos firewall -\n");
+    printf("this program takes traffic processed by\n"
+            "\"pack_cap\" and automatically chooses filter(s)\n"
+            "to be used\n\n");
+    printf("usage: ./addf [option arg [option arg [...]]] [-p]\n");
+    printf("options: \n"
+            "\t-t: sets the traffic file for this program\n"
+            "processed by pack_cap\n"
+            "\t-q: sets the blacklist for qn filter, if -q\n"
+            "is not set, this blacklist is calculated from\n"
+            "traffic\n"
+            "\t-u: sets the whitelist for ur filter\n"
+            "\t-h: sets the whitelist for hc filter\n"
+            "\t-s: sets the filtered traffic threshold, \n"
+            "is 300pkt/us by default\n"
+            "\t-p: print this help message\n");
+    printf("\033[0m");
+}
+
 int main(int argc, char **argv)
 {
     char opt;
-    while ((opt = getopt(argc, argv, "t:q:u:h:s:")) != -1)
+    while ((opt = getopt(argc, argv, "t:q:u:h:s:p")) != -1)
     {
         switch (opt)
         {
@@ -51,6 +73,9 @@ int main(int argc, char **argv)
         case 's':
             trafThres = atoi(optarg);
             break;
+        case 'p':
+            print_help();
+            return 0;
         }
     }
 
